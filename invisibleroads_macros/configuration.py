@@ -1,7 +1,9 @@
+import functools
 import re
 import shlex
 import sys
 from collections import defaultdict
+from importlib import import_module
 from six.moves.configparser import RawConfigParser
 
 
@@ -22,11 +24,16 @@ def get_interpretation_by_name(settings, prefix, interpret_setting):
     return interpretation_by_name
 
 
-def unicode_safely(x):
-    # http://stackoverflow.com/a/23085282/192092
-    if not hasattr(x, 'decode'):
-        return x
-    return x.decode(sys.getfilesystemencoding())
+def resolve_attribute(attribute_spec):
+    # Modified from pkg_resources.EntryPoint.resolve()
+    module_name, attributes_string = attribute_spec.split(':')
+    attributes = attributes_string.split('.')
+    module = import_module(module_name)
+    try:
+        attribute = functools.reduce(getattr, attributes, module)
+    except AttributeError as e:
+        raise ImportError(e)
+    return attribute
 
 
 def split_arguments(x):
@@ -34,3 +41,10 @@ def split_arguments(x):
         return shlex.split(x)
     except UnicodeEncodeError:
         return shlex.split(x.encode('utf-8'))
+
+
+def unicode_safely(x):
+    # http://stackoverflow.com/a/23085282/192092
+    if not hasattr(x, 'decode'):
+        return x
+    return x.decode(sys.getfilesystemencoding())
