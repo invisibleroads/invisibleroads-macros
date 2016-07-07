@@ -26,13 +26,13 @@ def get_interpretation_by_name(settings, prefix, interpret_setting):
 
 def resolve_attribute(attribute_spec):
     # Modified from pkg_resources.EntryPoint.resolve()
-    module_name, attributes_string = attribute_spec.split(':')
-    attributes = attributes_string.split('.')
-    module = import_module(module_name)
+    module_url, attributes_string = attribute_spec.split(':')
+    module = import_module(module_url)
     try:
-        attribute = functools.reduce(getattr, attributes, module)
-    except AttributeError as e:
-        raise ImportError(e)
+        attribute = functools.reduce(
+            getattr, attributes_string.split('.'), module)
+    except AttributeError:
+        raise ImportError('could not resolve attribute (%s)' % module_url)
     return attribute
 
 
