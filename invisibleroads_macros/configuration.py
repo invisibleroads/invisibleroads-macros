@@ -26,6 +26,8 @@ def get_interpretation_by_name(settings, prefix, interpret_setting):
 
 def resolve_attribute(attribute_spec):
     # Modified from pkg_resources.EntryPoint.resolve()
+    if not attribute_spec:
+        return
     module_url, attributes_string = attribute_spec.split(':')
     module = import_module(module_url)
     try:
