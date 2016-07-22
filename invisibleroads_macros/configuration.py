@@ -2,26 +2,24 @@ import functools
 import re
 import shlex
 import sys
-from collections import defaultdict
 from importlib import import_module
 from six.moves.configparser import RawConfigParser
+
+from .iterable import merge_dictionaries
 
 
 class RawCaseSensitiveConfigParser(RawConfigParser):
     optionxform = str
 
 
-def get_interpretation_by_name(settings, prefix, interpret_setting):
-    interpretation_by_name = defaultdict(dict)
-    pattern_key = re.compile(prefix.replace('.', r'\.') + r'(.*)\.(.*)')
-    for key, value in settings.items():
-        try:
-            name, attribute = pattern_key.match(key).groups()
-        except AttributeError:
+def parse_settings(settings, prefix, parse_setting):
+    d = {}
+    prefix_pattern = re.compile('^' + prefix.replace('.', r'\.'))
+    for k, v in settings.items():
+        if not k.startswith(prefix):
             continue
-        interpretation = interpretation_by_name[name]
-        interpretation.update(interpret_setting(attribute, value))
-    return interpretation_by_name
+        d = merge_dictionaries(d, parse_setting(prefix_pattern.sub('', k), v))
+    return d
 
 
 def resolve_attribute(attribute_spec):
