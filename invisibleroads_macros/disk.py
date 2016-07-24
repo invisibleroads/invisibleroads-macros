@@ -21,18 +21,18 @@ def make_folder(folder):
 
 
 def clean_folder(folder):
-    remove_path(folder)
+    remove_safely(folder)
     return make_folder(folder)
 
 
 def replace_folder(target_folder, source_folder):
-    remove_path(target_folder)
+    remove_safely(target_folder)
     make_folder(dirname(target_folder))
     copytree(source_folder, target_folder)
     return target_folder
 
 
-def remove_path(path):
+def remove_safely(path):
     try:
         rmtree(path)
     except OSError:
@@ -123,11 +123,11 @@ def compress_zip(source_folder, target_path=None, excludes=None):
 def uncompress(source_path, target_folder=None):
     if source_path.endswith('.tar.gz'):
         source_file = tarfile.open(source_path, 'r:gz')
-        target_folder = re.sub(r'\.tar.gz$', '', source_path)
+        default_target_folder = re.sub(r'\.tar.gz$', '', source_path)
     else:
         source_file = ZipFile(source_path, 'r')
-        target_folder = re.sub(r'\.zip$', '', source_path)
-    source_file.extractall(target_folder)
+        default_target_folder = re.sub(r'\.zip$', '', source_path)
+    source_file.extractall(target_folder or default_target_folder)
     source_file.close()
     return target_folder
 
