@@ -127,7 +127,8 @@ def uncompress(source_path, target_folder=None):
     else:
         source_file = ZipFile(source_path, 'r')
         default_target_folder = re.sub(r'\.zip$', '', source_path)
-    source_file.extractall(target_folder or default_target_folder)
+    target_folder = target_folder or default_target_folder
+    source_file.extractall(target_folder)
     source_file.close()
     return target_folder
 
