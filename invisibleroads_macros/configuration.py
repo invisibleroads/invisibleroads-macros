@@ -12,14 +12,20 @@ class RawCaseSensitiveConfigParser(RawConfigParser):
     optionxform = str
 
 
-def parse_settings(settings, prefix, parse_setting):
+def parse_settings(settings, prefix, parse_setting=None):
     d = {}
     prefix_pattern = re.compile('^' + prefix.replace('.', r'\.'))
+    if not parse_setting:
+        parse_setting = parse_raw_setting
     for k, v in settings.items():
         if not k.startswith(prefix):
             continue
         d = merge_dictionaries(d, parse_setting(prefix_pattern.sub('', k), v))
     return d
+
+
+def parse_raw_setting(k, v):
+    return {k: v}
 
 
 def resolve_attribute(attribute_spec):
