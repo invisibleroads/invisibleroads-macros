@@ -1,3 +1,7 @@
+0.7
+---
+- Remove parse_date_safely
+
 0.6
 ---
 - Add iterable.flatten_dictionaries, iterable.merge_dictionaries
