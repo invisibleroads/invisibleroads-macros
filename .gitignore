@@ -1,9 +1,8 @@
 # Python
-*.egg
-*.egg-info
-*.eggs
+*.egg*
 *.py[co]
 .cache
+__pycache__
 build
 dist
 # Vim

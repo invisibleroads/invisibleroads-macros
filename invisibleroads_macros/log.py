@@ -10,12 +10,14 @@ from sys import stderr
 
 
 def print_error(x, *args):
+    'Print to standard error stream'
     print(x % args, file=stderr)
 
 
-def sort_dictionary(value_by_key, sorted_keys):
+def sort_dictionary(value_by_key, sorted_keys=None):
+    'Sort dictionary by keys'
     d = OrderedDict()
-    for key in sorted_keys:
+    for key in sorted_keys or sorted(value_by_key.keys()):
         try:
             d[key] = value_by_key[key]
         except KeyError:
