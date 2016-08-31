@@ -1,6 +1,7 @@
 0.7
 ---
-- Remove parse_date_safely
+- Remove parse_date_safely thanks to latest dateutil
+- Replace get_interpretation_by_name with parse_settings
 
 0.6
 ---
