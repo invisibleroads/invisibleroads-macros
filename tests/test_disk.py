@@ -7,7 +7,7 @@ from tempfile import mkdtemp
 from invisibleroads_macros.disk import make_folder, compress, uncompress
 
 
-@pytest.yield_fixture(scope='module')
+@pytest.fixture(scope='module')
 def sandbox(request):
     """
     source_folder_link -> source_folder

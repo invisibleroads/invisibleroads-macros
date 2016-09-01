@@ -2,6 +2,8 @@
 *.egg*
 *.py[co]
 .cache
+.coverage
+.ipynb_checkpoints
 __pycache__
 build
 dist
