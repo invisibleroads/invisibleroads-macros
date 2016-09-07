@@ -30,8 +30,8 @@ def parse_raw_setting(k, v):
 
 def resolve_attribute(attribute_spec):
     # Modified from pkg_resources.EntryPoint.resolve()
-    if not attribute_spec:
-        return
+    if not attribute_spec or not hasattr(attribute_spec, 'split'):
+        return attribute_spec
     module_url, attributes_string = attribute_spec.split(':')
     module = import_module(module_url)
     try:

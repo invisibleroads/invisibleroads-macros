@@ -143,3 +143,13 @@ def get_lists_from_tuples(xs):
     if isinstance(xs, (list, tuple)):
         return list(map(get_lists_from_tuples, xs))
     return xs
+
+
+def set_default(settings, key, default, parse=None):
+    'Set key with default if it does not exist or parse value if it exists'
+    if key not in settings:
+        value = default
+    elif parse:
+        value = parse(settings[key])
+    settings[key] = value
+    return value
