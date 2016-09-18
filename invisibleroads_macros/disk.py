@@ -1,6 +1,7 @@
 import fnmatch
 import re
 import tarfile
+import zipfile
 from contextlib import contextmanager
 from os import chdir, getcwd, makedirs, remove, walk
 from os.path import (
@@ -9,7 +10,8 @@ from os.path import (
 from pathlib import Path
 from shutil import copytree, rmtree
 from tempfile import mkdtemp, mkstemp
-from zipfile import ZipFile, ZIP_DEFLATED
+
+from .exceptions import BadArchive
 
 
 def make_folder(folder):
@@ -109,8 +111,8 @@ def compress_zip(source_folder, target_path=None, excludes=None):
     'Compress folder as zip archive'
     if not target_path:
         target_path = source_folder + '.zip'
-    with ZipFile(
-        target_path, 'w', ZIP_DEFLATED, allowZip64=True,
+    with zipfile.ZipFile(
+        target_path, 'w', zipfile.ZIP_DEFLATED, allowZip64=True,
     ) as target_file:
         for path in Path(source_folder).rglob('*'):
             if path.is_dir():
@@ -124,10 +126,18 @@ def compress_zip(source_folder, target_path=None, excludes=None):
 
 def uncompress(source_path, target_folder=None):
     if source_path.endswith('.tar.gz'):
-        source_file = tarfile.open(source_path, 'r:gz')
+        try:
+            source_file = tarfile.open(source_path, 'r:gz')
+        except tarfile.ReadError:
+            raise BadArchive(
+                'could not open archive (source_path=%s)' % source_path)
         default_target_folder = re.sub(r'\.tar.gz$', '', source_path)
     else:
-        source_file = ZipFile(source_path, 'r')
+        try:
+            source_file = zipfile.ZipFile(source_path, 'r')
+        except zipfile.BadZipfile:
+            raise BadArchive(
+                'could not open archive (source_path=%s)' % source_path)
         default_target_folder = re.sub(r'\.zip$', '', source_path)
     target_folder = target_folder or default_target_folder
     source_file.extractall(target_folder)
