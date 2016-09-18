@@ -4,10 +4,8 @@ import tarfile
 from contextlib import contextmanager
 from os import chdir, getcwd, makedirs, remove, walk
 from os.path import (
-    abspath, basename, dirname,
-    exists, isdir, isfile,
-    join, normpath, realpath,
-    relpath, sep, splitext)
+    abspath, basename, dirname, join, normpath, realpath, relpath, sep,
+    splitext)
 from pathlib import Path
 from shutil import copytree, rmtree
 from tempfile import mkdtemp, mkstemp
@@ -50,8 +48,9 @@ def remove_safely(path):
 
 def make_link(source_path, target_path):
     'Create symbolic link at target_path pointing to source_path'
-    from os import readlink, symlink  # Undefined in Windows
-    symlink(normpath(source_path), remove_safely(target_path))
+    from os import symlink  # Undefined in Windows
+    make_folder(dirname(remove_safely(target_path)))
+    symlink(normpath(source_path), target_path)
     return target_path
 
 
@@ -81,24 +80,26 @@ def resolve_relative_path(relative_path, folder):
     return join(folder, relative_path)
 
 
-def compress(source_folder, target_path=None):
+def compress(source_folder, target_path=None, excludes=None):
     'Compress folder; specify archive extension (.tar.gz .zip) in target_path'
     if not target_path:
         target_path = source_folder + '.tar.gz'
     if target_path.endswith('.tar.gz'):
-        compress_tar_gz(source_folder, target_path)
+        compress_tar_gz(source_folder, target_path, excludes)
     else:
-        compress_zip(source_folder, target_path)
+        compress_zip(source_folder, target_path, excludes)
     return target_path
 
 
-def compress_tar_gz(source_folder, target_path=None):
+def compress_tar_gz(source_folder, target_path=None, excludes=None):
     'Compress folder as tar archive'
     if not target_path:
         target_path = source_folder + '.tar.gz'
     with tarfile.open(target_path, 'w:gz', dereference=True) as target_file:
         for path in Path(source_folder).rglob('*'):
             if path.is_dir():
+                continue
+            if has_name_match(path, excludes):
                 continue
             target_file.add(str(path), str(path.relative_to(source_folder)))
     return target_path
