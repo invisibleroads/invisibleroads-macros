@@ -1,6 +1,3 @@
-round_number = lambda x: int(round(abs(x)))
-
-
 def get_percent_change(new_value, old_value):
     if not old_value and not new_value:
         return 0
@@ -24,3 +21,13 @@ def define_normalize(xs, ys):
         return (unit_x * y_width) + y_min
 
     return normalize
+
+
+def divide_safely(numerator, denominator, default):
+    if not denominator:
+        return default
+    return numerator / float(denominator)
+
+
+def round_number(x):
+    return int(round(abs(x)))
