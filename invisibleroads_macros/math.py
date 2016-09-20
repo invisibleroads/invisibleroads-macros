@@ -25,6 +25,8 @@ def define_normalize(xs, ys):
 
 def divide_safely(numerator, denominator, default):
     if not denominator:
+        if isinstance(default, Exception):
+            raise default
         return default
     return numerator / float(denominator)
 
