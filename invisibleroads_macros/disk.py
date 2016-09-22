@@ -167,16 +167,17 @@ def cd(target_folder):
         chdir(source_folder)
 
 
-def make_temporary_path(suffix='', prefix='tmp', parent_folder=None):
-    return make_unique_path(suffix, prefix, parent_folder, temporary=True)
+def make_temporary_path(parent_folder=None, suffix='', prefix='tmp'):
+    return make_unique_path(parent_folder, suffix, prefix, temporary=True)
 
 
-def make_temporary_folder(suffix='', prefix='tmp', parent_folder=None):
-    return make_unique_folder(suffix, prefix, parent_folder, temporary=True)
+def make_temporary_folder(parent_folder=None, suffix='', prefix='tmp'):
+    return make_unique_folder(parent_folder, suffix, prefix, temporary=True)
 
 
 @contextmanager
-def make_unique_path(suffix='', prefix='', parent_folder=None, temporary=False):
+def make_unique_path(
+        parent_folder=None, suffix='', prefix='', temporary=False):
     file_descriptor, file_path = mkstemp(suffix, prefix, parent_folder)
     yield file_path
     close(file_descriptor)
@@ -185,7 +186,8 @@ def make_unique_path(suffix='', prefix='', parent_folder=None, temporary=False):
 
 
 @contextmanager
-def make_unique_folder(suffix='', prefix='', parent_folder=None, temporary=False):
+def make_unique_folder(
+        parent_folder=None, suffix='', prefix='', temporary=False):
     temporary_folder = mkdtemp(suffix, prefix, parent_folder)
     yield temporary_folder
     if temporary:
