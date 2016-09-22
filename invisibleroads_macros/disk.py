@@ -3,7 +3,7 @@ import re
 import tarfile
 import zipfile
 from contextlib import contextmanager
-from os import chdir, getcwd, makedirs, remove, walk
+from os import chdir, close, getcwd, makedirs, remove, walk
 from os.path import (
     abspath, basename, dirname, join, normpath, realpath, relpath, sep,
     splitext)
@@ -167,18 +167,29 @@ def cd(target_folder):
         chdir(source_folder)
 
 
-@contextmanager
-def make_temporary_path(suffix='', prefix='tmp', target_folder=None):
-    temporary_path = mkstemp(suffix, prefix, target_folder)
-    yield temporary_path
-    rmtree(temporary_path)
+def make_temporary_path(suffix='', prefix='tmp', parent_folder=None):
+    return make_unique_path(suffix, prefix, parent_folder, temporary=True)
+
+
+def make_temporary_folder(suffix='', prefix='tmp', parent_folder=None):
+    return make_unique_folder(suffix, prefix, parent_folder, temporary=True)
 
 
 @contextmanager
-def make_temporary_folder(suffix='', prefix='tmp', target_folder=None):
-    temporary_folder = mkdtemp(suffix, prefix, target_folder)
+def make_unique_path(suffix='', prefix='', parent_folder=None, temporary=False):
+    file_descriptor, file_path = mkstemp(suffix, prefix, parent_folder)
+    yield file_path
+    close(file_descriptor)
+    if temporary:
+        remove_safely(file_path)
+
+
+@contextmanager
+def make_unique_folder(suffix='', prefix='', parent_folder=None, temporary=False):
+    temporary_folder = mkdtemp(suffix, prefix, parent_folder)
     yield temporary_folder
-    rmtree(temporary_folder)
+    if temporary:
+        remove_safely(temporary_folder)
 
 
 def make_enumerated_folder_for(script_path, first_index=1):
