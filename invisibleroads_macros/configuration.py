@@ -3,13 +3,23 @@ import re
 import shlex
 import sys
 from importlib import import_module
-from six.moves.configparser import RawConfigParser
+from six.moves.configparser import NoSectionError, RawConfigParser
 
 from .iterable import merge_dictionaries
 
 
 class RawCaseSensitiveConfigParser(RawConfigParser):
     optionxform = str
+
+
+def load_settings(configuration_path, section_name):
+    configuration = RawCaseSensitiveConfigParser()
+    configuration.read(configuration_path)
+    try:
+        d = dict(configuration.items(section_name))
+    except NoSectionError:
+        d = {}
+    return d
 
 
 def parse_settings(settings, prefix, parse_setting=None):
