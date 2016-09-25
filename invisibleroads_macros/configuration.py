@@ -42,11 +42,18 @@ def resolve_attribute(attribute_spec):
     return attribute
 
 
-def split_arguments(x):
+def split_arguments(command_string):
+    # Strip line breaks: \ for POSIX, ^ for Windows
+    lines = []
+    for line in command_string.splitlines():
+        lines.append(line.rstrip(' \\^'))
+    string = ' '.join(lines)
+    # Split terms
     try:
-        return shlex.split(x)
+        xs = shlex.split(string)
     except UnicodeEncodeError:
-        return shlex.split(x.encode('utf-8'))
+        xs = shlex.split(string.encode('utf-8'))
+    return [x.strip() for x in xs]
 
 
 def unicode_safely(x):
