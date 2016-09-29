@@ -9,3 +9,4 @@ def test_normalize_column_name():
     assert f('one_two') == 'one two'
     assert f('1two') == '1 two'
     assert f('one2') == 'one 2'
+    assert f('one--__  -_-_two   three  --__') == 'one two three'
