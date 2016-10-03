@@ -4,12 +4,13 @@ from copy import copy
 def flip_geometry_coordinates(geometries):
     flipped_geometries = []
     for geometry in geometries:
-	flipped_geometry = copy(geometry)
         if hasattr(geometry, 'geoms'):
-            flipped_geometry.geoms = flip_geometry_coordinates(geometry.geoms)
+            flipped_geometry = geometry.__class__(
+                flip_geometry_coordinates(geometry.geoms))
         else:
+            flipped_geometry = copy(geometry)
             flipped_geometry.coords = [flip_xy(xyz) for xyz in geometry.coords]
-    flipped_geometries.append(flipped_geometry)
+        flipped_geometries.append(flipped_geometry)
     return flipped_geometries
 
 
