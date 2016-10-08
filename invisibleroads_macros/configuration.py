@@ -2,10 +2,39 @@ import functools
 import re
 import shlex
 import sys
+from argparse import ArgumentError, ArgumentParser
 from importlib import import_module
 from six.moves.configparser import NoSectionError, RawConfigParser
 
 from .iterable import merge_dictionaries
+
+
+class StoicArgumentParser(ArgumentParser):
+
+    def add_argument(self, *args, **kw):
+        try:
+            return super(StoicArgumentParser, self).add_argument(*args, **kw)
+        except ArgumentError:
+            pass
+
+
+class TerseArgumentParser(StoicArgumentParser):
+
+    def add(self, argument_name, *args, **kw):
+        d = {}
+        if argument_name.endswith('_path'):
+            d['metavar'] = 'PATH'
+        elif '_as_percent_of_' in argument_name:
+            d['metavar'] = 'FLOAT'
+            d['type'] = float
+        elif argument_name.endswith('_year'):
+            d['metavar'] = 'YEAR'
+            d['type'] = int
+        elif argument_name.endswith('_in_years'):
+            d['metavar'] = 'INTEGER'
+            d['type'] = int
+        d.update(kw)
+        self.add_argument('--' + argument_name, *args, **d)
 
 
 class RawCaseSensitiveConfigParser(RawConfigParser):

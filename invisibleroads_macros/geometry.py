@@ -7,6 +7,9 @@ def flip_geometry_coordinates(geometries):
         if hasattr(geometry, 'geoms'):
             flipped_geometry = geometry.__class__(
                 flip_geometry_coordinates(geometry.geoms))
+        elif hasattr(geometry, 'xy'):
+            flipped_geometry = geometry.__class__(
+                flip_xy(geometry.coords[0]))
         else:
             flipped_geometry = copy(geometry)
             flipped_geometry.coords = [flip_xy(xyz) for xyz in geometry.coords]
@@ -18,4 +21,4 @@ def flip_xy(xyz):
     'Flip x and y coordinates whether or not there is a z-coordinate'
     xyz = list(xyz)  # Preserve original
     xyz[0], xyz[1] = xyz[1], xyz[0]
-    return xyz
+    return tuple(xyz)
