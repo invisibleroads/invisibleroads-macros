@@ -3,6 +3,7 @@ from __future__ import print_function
 
 import os
 import re
+import traceback
 from collections import OrderedDict
 from os.path import expanduser
 from six import string_types
@@ -164,3 +165,7 @@ def parse_nested_dictionary(text, is_key=lambda x: True):
                 this_dictionary = this_dictionary[key]
         last_dictionary[key] = '\n'.join(v).strip()
     return d
+
+
+def log_traceback(log, d=None):
+    log.error(traceback.format_exc() + str(d))
