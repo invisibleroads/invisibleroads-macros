@@ -8,10 +8,38 @@ from os.path import (
     abspath, basename, dirname, join, normpath, realpath, relpath, sep,
     splitext)
 from pathlib import Path
-from shutil import copytree, rmtree
+from shutil import copy, copyfileobj, copytree, move, rmtree
 from tempfile import mkdtemp, mkstemp
 
 from .exceptions import BadArchive
+
+
+class TemporaryFolder(object):
+
+    def __init__(self, parent_folder=None, suffix='', prefix='tmp'):
+        self.folder = make_unique_folder(parent_folder, suffix, prefix)
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exception_type, exception_value, exception_traceback):
+        super(TemporaryFolder, self).__exit__(
+            exception_type, exception_value, exception_traceback)
+        remove_safely(self.folder)
+
+
+class TemporaryPath(object):
+
+    def __init__(self, parent_folder=None, suffix='', prefix='tmp'):
+        self.path = make_unique_path(parent_folder, suffix, prefix)
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exception_type, exception_value, exception_traceback):
+        super(TemporaryPath, self).__exit__(
+            exception_type, exception_value, exception_traceback)
+        remove_safely(self.path)
 
 
 def make_folder(folder):
@@ -21,6 +49,16 @@ def make_folder(folder):
     except OSError:
         pass
     return folder
+
+
+def make_unique_folder(parent_folder=None, suffix='', prefix=''):
+    return mkdtemp(suffix, prefix, parent_folder)
+
+
+def make_unique_path(parent_folder=None, suffix='', prefix=''):
+    descriptor, path = mkstemp(suffix, prefix, parent_folder)
+    close(descriptor)
+    return path
 
 
 def clean_folder(folder):
@@ -167,33 +205,6 @@ def cd(target_folder):
         chdir(source_folder)
 
 
-def make_temporary_path(parent_folder=None, suffix='', prefix='tmp'):
-    return make_unique_path(parent_folder, suffix, prefix, temporary=True)
-
-
-def make_temporary_folder(parent_folder=None, suffix='', prefix='tmp'):
-    return make_unique_folder(parent_folder, suffix, prefix, temporary=True)
-
-
-@contextmanager
-def make_unique_path(
-        parent_folder=None, suffix='', prefix='', temporary=False):
-    file_descriptor, file_path = mkstemp(suffix, prefix, parent_folder)
-    yield file_path
-    close(file_descriptor)
-    if temporary:
-        remove_safely(file_path)
-
-
-@contextmanager
-def make_unique_folder(
-        parent_folder=None, suffix='', prefix='', temporary=False):
-    temporary_folder = mkdtemp(suffix, prefix, parent_folder)
-    yield temporary_folder
-    if temporary:
-        remove_safely(temporary_folder)
-
-
 def make_enumerated_folder_for(script_path, first_index=1):
     package_name = get_file_basename(script_path)
     if 'run' == package_name:
@@ -256,3 +267,27 @@ def get_file_extension(file_name, max_length=16):
     ]).rstrip()
     # Limit length
     return '.' + file_extension[-max_length:]
+
+
+def copy_content(target_folder, target_name, source_content):
+    target_path = join(target_folder, target_name)
+    open(target_path, 'wb').write(source_content)
+    return target_path
+
+
+def copy_file(target_folder, target_name, source_file):
+    target_path = join(target_folder, target_name)
+    copyfileobj(source_file, target_path)
+    return target_path
+
+
+def copy_path(target_folder, target_name, source_path):
+    target_path = join(target_folder, target_name)
+    copy(source_path, target_path)
+    return target_path
+
+
+def move_path(target_folder, target_name, source_path):
+    target_path = join(target_folder, target_name)
+    move(source_path, target_path)
+    return target_path
