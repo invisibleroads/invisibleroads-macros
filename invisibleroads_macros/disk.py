@@ -1,3 +1,4 @@
+import codecs
 import fnmatch
 import re
 import tarfile
@@ -52,10 +53,14 @@ def make_folder(folder):
 
 
 def make_unique_folder(parent_folder=None, suffix='', prefix=''):
+    if parent_folder:
+        make_folder(parent_folder)
     return mkdtemp(suffix, prefix, parent_folder)
 
 
 def make_unique_path(parent_folder=None, suffix='', prefix=''):
+    if parent_folder:
+        make_folder(parent_folder)
     descriptor, path = mkstemp(suffix, prefix, parent_folder)
     close(descriptor)
     return path
@@ -84,14 +89,6 @@ def remove_safely(path):
         except OSError:
             pass
     return path
-
-
-def make_link(source_path, target_path):
-    'Create symbolic link at target_path pointing to source_path'
-    from os import symlink  # Undefined in Windows
-    make_folder(dirname(remove_safely(target_path)))
-    symlink(normpath(source_path), target_path)
-    return target_path
 
 
 def find_path(file_name, folder):
@@ -269,9 +266,9 @@ def get_file_extension(file_name, max_length=16):
     return '.' + file_extension[-max_length:]
 
 
-def copy_content(target_folder, target_name, source_content):
+def copy_text(target_folder, target_name, source_text):
     target_path = join(target_folder, target_name)
-    open(target_path, 'wb').write(source_content)
+    codecs.open(target_path, 'w', encoding='utf-8').write(source_text)
     return target_path
 
 
@@ -284,6 +281,17 @@ def copy_file(target_folder, target_name, source_file):
 def copy_path(target_folder, target_name, source_path):
     target_path = join(target_folder, target_name)
     copy(source_path, target_path)
+    return target_path
+
+
+def link_path(target_folder, target_name, source_path):
+    try:
+        from os import symlink  # Undefined in Windows
+    except ImportError:
+        return copy_path(target_folder, target_name, source_path)
+    target_path = join(target_folder, target_name)
+    make_folder(dirname(remove_safely(target_path)))
+    symlink(normpath(source_path), target_path)
     return target_path
 
 
