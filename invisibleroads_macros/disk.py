@@ -6,8 +6,7 @@ import zipfile
 from contextlib import contextmanager
 from os import chdir, close, getcwd, makedirs, remove, walk
 from os.path import (
-    abspath, basename, dirname, join, normpath, realpath, relpath, sep,
-    splitext)
+    abspath, basename, dirname, exists, join, realpath, relpath, sep, splitext)
 from pathlib import Path
 from shutil import copy, copyfileobj, copytree, move, rmtree
 from tempfile import mkdtemp, mkstemp
@@ -274,7 +273,7 @@ def copy_text(target_folder, target_name, source_text):
 
 def copy_file(target_folder, target_name, source_file):
     target_path = join(target_folder, target_name)
-    copyfileobj(source_file, target_path)
+    copyfileobj(source_file, open(target_path, 'wb'))
     return target_path
 
 
@@ -285,13 +284,15 @@ def copy_path(target_folder, target_name, source_path):
 
 
 def link_path(target_folder, target_name, source_path):
+    if not exists(source_path):
+        raise IOError
     try:
         from os import symlink  # Undefined in Windows
     except ImportError:
         return copy_path(target_folder, target_name, source_path)
     target_path = join(target_folder, target_name)
     make_folder(dirname(remove_safely(target_path)))
-    symlink(normpath(source_path), target_path)
+    symlink(abspath(source_path), abspath(target_path))
     return target_path
 
 
