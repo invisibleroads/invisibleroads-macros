@@ -26,7 +26,6 @@ setup(
     ],
     install_requires=[
         'pathlib',
-        'python-dateutil',
         'six',
     ],
     tests_require=[
