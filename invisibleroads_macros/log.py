@@ -15,17 +15,6 @@ def print_error(x, *args):
     print(x % args, file=stderr)
 
 
-def sort_dictionary(value_by_key, sorted_keys=None):
-    'Sort dictionary by keys'
-    d = OrderedDict()
-    for key in sorted_keys or sorted(value_by_key.keys()):
-        try:
-            d[key] = value_by_key[key]
-        except KeyError:
-            pass
-    return d
-
-
 def stylize_dictionary(value_by_key, suffix_format_packs):
     d = {}
     for key, value in value_by_key.items():

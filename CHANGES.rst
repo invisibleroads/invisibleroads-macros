@@ -1,5 +1,6 @@
 0.7
 ---
+- Add configuration.load_settings and configuration.save_settings
 - Add disk.TemporaryFolder and disk.TemporaryPath
 - Add math.divide_safely
 - Remove parse_date_safely thanks to latest dateutil

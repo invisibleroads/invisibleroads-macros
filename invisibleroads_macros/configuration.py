@@ -51,6 +51,17 @@ def load_settings(configuration_path, section_name):
     return d
 
 
+def save_settings(configuration_path, **sections):
+    configuration = RawCaseSensitiveConfigParser()
+    configuration.read(configuration_path)
+    for section_name, value_by_key in sections.items():
+        configuration.add_section(section_name)
+        for key, value in value_by_key.items():
+            configuration.set(section_name, key, value)
+    configuration.write(open(configuration_path, 'wt'))
+    return configuration_path
+
+
 def parse_settings(settings, prefix, parse_setting=None):
     d = {}
     prefix_pattern = re.compile('^' + prefix.replace('.', r'\.'))

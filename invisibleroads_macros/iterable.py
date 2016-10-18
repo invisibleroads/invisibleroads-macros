@@ -106,11 +106,6 @@ class OrderedSet(MutableSet):
         return set(self) == set(other)
 
 
-def flatten_lists(list_of_lists):
-    # http://stackoverflow.com/a/952952/192092
-    return [item for sublist in list_of_lists for item in sublist]
-
-
 def flatten_dictionaries(dictionary_of_dictionaries):
     'Combined nested dictionary into a simple dictionary'
     d = OrderedDict()
@@ -121,6 +116,19 @@ def flatten_dictionaries(dictionary_of_dictionaries):
         for inner_k, inner_v in flatten_dictionaries(outer_v).items():
             d['%s.%s' % (outer_k, inner_k)] = inner_v
     return d
+
+
+def flatten_lists(list_of_lists):
+    # http://stackoverflow.com/a/952952/192092
+    return [item for sublist in list_of_lists for item in sublist]
+
+
+def get_lists_from_tuples(xs):
+    'Convert tuples to lists'
+    # http://stackoverflow.com/a/1014669
+    if isinstance(xs, (list, tuple)):
+        return list(map(get_lists_from_tuples, xs))
+    return xs
 
 
 def merge_dictionaries(*dictionaries):
@@ -137,14 +145,6 @@ def merge_dictionaries(*dictionaries):
     return d
 
 
-def get_lists_from_tuples(xs):
-    'Convert tuples to lists'
-    # http://stackoverflow.com/a/1014669
-    if isinstance(xs, (list, tuple)):
-        return list(map(get_lists_from_tuples, xs))
-    return xs
-
-
 def set_default(settings, key, default, parse=None):
     'Set key with default if it does not exist or parse value if it exists'
     if key not in settings:
@@ -153,3 +153,14 @@ def set_default(settings, key, default, parse=None):
         value = parse(settings[key])
     settings[key] = value
     return value
+
+
+def sort_dictionary(value_by_key, sorted_keys):
+    'Sort dictionary by keys'
+    d = OrderedDict()
+    for key in sorted_keys:
+        try:
+            d[key] = value_by_key[key]
+        except KeyError:
+            pass
+    return d
