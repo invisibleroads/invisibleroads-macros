@@ -6,7 +6,8 @@ import zipfile
 from contextlib import contextmanager
 from os import chdir, close, getcwd, makedirs, remove, walk
 from os.path import (
-    abspath, basename, dirname, exists, join, realpath, relpath, sep, splitext)
+    abspath, basename, dirname, exists, expanduser, join, realpath, relpath,
+    sep, splitext)
 from pathlib import Path
 from shutil import copy, copyfileobj, copytree, move, rmtree
 from tempfile import mkdtemp, mkstemp
@@ -180,7 +181,7 @@ def uncompress(source_path, target_folder=None):
 
 
 def are_same_path(path1, path2):
-    return realpath(path1) == realpath(path2)
+    return realpath(expand_path(path1)) == realpath(expand_path(path2))
 
 
 def has_name_match(path, expressions):
@@ -228,7 +229,7 @@ def make_enumerated_folder(base_folder, first_index=1):
 
 
 def get_package_folder(script_path):
-    return dirname(abspath(script_path))
+    return dirname((script_path))
 
 
 def change_owner_and_group_recursively(target_folder, target_username):
@@ -292,7 +293,7 @@ def link_path(target_folder, target_name, source_path):
         return copy_path(target_folder, target_name, source_path)
     target_path = join(target_folder, target_name)
     make_folder(dirname(remove_safely(target_path)))
-    symlink(abspath(source_path), abspath(target_path))
+    symlink(expand_path(source_path), expand_path(target_path))
     return target_path
 
 
@@ -300,3 +301,7 @@ def move_path(target_folder, target_name, source_path):
     target_path = join(target_folder, target_name)
     move(source_path, target_path)
     return target_path
+
+
+def expand_path(path):
+    return abspath(expanduser(path))
