@@ -20,6 +20,10 @@ class TestFolderMixin(object):
     random_length = 10
     instance_id = 100
 
+    def test_spawn(self, data_folder):
+        x = X.spawn(data_folder)
+        assert basename(x.folder) == '1'
+
     def test_spawn_enumerated_folder(self, data_folder):
         folder = X.spawn_folder(data_folder)
         assert basename(folder) == '1'
@@ -44,6 +48,11 @@ class TestUserFolderMixin(object):
     random_length = 10
     instance_id = 100
     user_id = 1000
+
+    def test_spawn(self, data_folder):
+        y = Y.spawn(data_folder, owner_id=self.user_id)
+        assert basename(y.folder) == '1'
+        assert basename(dirname(y.folder)) == str(self.user_id)
 
     def test_spawn_enumerated_folder(self, data_folder):
         with raises(IOError):

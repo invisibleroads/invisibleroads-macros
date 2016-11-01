@@ -1,4 +1,4 @@
-from os.path import join
+from os.path import basename, join
 
 from .disk import (
     make_enumerated_folder, make_unique_folder, resolve_relative_path)
@@ -12,6 +12,14 @@ class DummyBase(object):
 
 
 class FolderMixin(object):
+
+    @classmethod
+    def spawn(Class, data_folder, random_length=None, *args, **kw):
+        instance = Class()
+        instance.folder = Class.spawn_folder(
+            data_folder, random_length, *args, **kw)
+        instance.id = basename(instance.folder)
+        return instance
 
     @classmethod
     def spawn_folder(Class, data_folder, random_length=None):
