@@ -112,7 +112,7 @@ def find_paths(name_expression, folder):
 
 def resolve_relative_path(relative_path, folder):
     relative_path = relpath(join(folder, relative_path), folder)
-    if relative_path.startswith('..'):
+    if relative_path.startswith('.'):
         raise IOError('relative_path must refer to a file inside folder')
     return join(folder, relative_path)
 

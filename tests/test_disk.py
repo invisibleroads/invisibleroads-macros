@@ -1,6 +1,6 @@
-import pytest
 from os import symlink
 from os.path import join
+from pytest import fixture, raises
 from shutil import rmtree
 from tempfile import mkdtemp
 
@@ -8,7 +8,7 @@ from invisibleroads_macros.disk import make_folder, compress, uncompress
 from invisibleroads_macros.exceptions import BadArchive
 
 
-@pytest.fixture(scope='module')
+@fixture(scope='module')
 def sandbox(request):
     """
     source_folder_link -> source_folder
@@ -59,7 +59,7 @@ class CompressionMixin(object):
     def test_recognize_bad_archive(self, tmpdir):
         target_path = str(tmpdir.join('x' + self.extension))
         open(target_path, 'wt').write('123')
-        with pytest.raises(BadArchive):
+        with raises(BadArchive):
             uncompress(target_path)
 
 
