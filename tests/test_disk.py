@@ -1,41 +1,71 @@
 from os import symlink
-from os.path import join
+from os.path import isdir, islink, join
 from pytest import fixture, raises
-from shutil import rmtree
-from tempfile import mkdtemp
 
 from invisibleroads_macros.disk import make_folder, compress, uncompress
 from invisibleroads_macros.exceptions import BadArchive
 
 
-@fixture(scope='module')
-def sandbox(request):
+@fixture
+def sandbox(tmpdir):
     """
     source_folder_link -> source_folder
     source_folder
-        internal.txt
-        internal_link -> internal.txt
-        external_link -> external.txt
-    external.txt
+        external_file_link_link -> external_file_link
+        external_file_link -> external_file
+        internal_file_link_link -> internal_file_link
+        internal_file_link -> internal_file
+        internal_file
+        internal_folder_link -> internal_folder
+        internal_folder
+            internal_folder_file
+        empty_folder
+        .hidden_file
+        .hidden_folder
+            hidden_folder_file
+    external_file
     """
-    temporary_folder = mkdtemp()
-    o = O()
+    o, temporary_folder = O(), str(tmpdir)
     o.source_folder = make_folder(join(temporary_folder, 'source_folder'))
-    o.internal_path = join(o.source_folder, 'internal.txt')
-    o.external_path = join(temporary_folder, 'external.txt')
-    open(o.internal_path, 'wt').write('internal')
-    open(o.external_path, 'wt').write('external')
+    o.external_file_path = join(temporary_folder, 'external_file')
+    o.internal_file_path = join(o.source_folder, 'internal_file')
+    open(o.external_file_path, 'wt').write('external_file')
+    open(o.internal_file_path, 'wt').write('internal_file')
 
-    o.internal_link_path = join(o.source_folder, 'internal_link')
-    o.external_link_path = join(o.source_folder, 'external_link')
-    symlink(o.internal_path, o.internal_link_path)
-    symlink(o.external_path, o.external_link_path)
+    o.external_file_link_path = join(o.source_folder, 'external_file_link')
+    o.internal_file_link_path = join(o.source_folder, 'internal_file_link')
+    symlink(o.external_file_path, o.external_file_link_path)
+    symlink(o.internal_file_path, o.internal_file_link_path)
+
+    o.external_file_link_link_path = join(
+        o.source_folder, 'external_file_link_link')
+    o.internal_file_link_link_path = join(
+        o.source_folder, 'internal_file_link_link')
+    symlink(o.external_file_link_path, o.external_file_link_link_path)
+    symlink(o.internal_file_link_path, o.internal_file_link_link_path)
+
+    o.internal_folder = make_folder(join(o.source_folder, 'internal_folder'))
+    o.internal_folder_file_path = join(
+        o.internal_folder, 'internal_folder_file')
+    o.internal_folder_link_path = join(o.source_folder, 'internal_folder_link')
+    open(o.internal_folder_file_path, 'wt').write('internal_folder_file')
+    symlink(o.internal_folder, o.internal_folder_link_path)
+
+    o.empty_folder = make_folder(join(o.source_folder, 'empty_folder'))
+    o.hidden_file_path = join(o.source_folder, '.hidden_file')
+    o.hidden_folder = make_folder(join(o.source_folder, '.hidden_folder'))
+    o.hidden_folder_file_path = join(o.hidden_folder, 'hidden_folder_file')
+    open(o.hidden_file_path, 'wt').write('hidden_file')
+    open(o.hidden_folder_file_path, 'wt').write('hidden_folder_file')
 
     o.source_folder_link_path = join(temporary_folder, 'source_folder_link')
     symlink(o.source_folder, o.source_folder_link_path)
+    return o
 
-    yield o
-    rmtree(temporary_folder)
+
+@fixture
+def target_folder(tmpdir):
+    return str(tmpdir.join('target_folder'))
 
 
 class O(object):
@@ -44,17 +74,17 @@ class O(object):
 
 class CompressionMixin(object):
 
-    def test_include_external_link(self, sandbox, tmpdir):
+    def test_include_external_link(self, sandbox, target_folder):
         source_folder = sandbox.source_folder
         target_path = compress(source_folder, source_folder + self.extension)
-        target_folder = uncompress(target_path, str(tmpdir))
-        assert_contents(target_folder, sandbox)
+        target_folder = uncompress(target_path, target_folder)
+        assert_archive_contents(target_folder, sandbox)
 
-    def test_resolve_source_folder_link(self, sandbox, tmpdir):
+    def test_resolve_source_folder_link(self, sandbox, target_folder):
         source_folder = sandbox.source_folder_link_path
         target_path = compress(source_folder, source_folder + self.extension)
-        target_folder = uncompress(target_path, str(tmpdir))
-        assert_contents(target_folder, sandbox)
+        target_folder = uncompress(target_path, target_folder)
+        assert_archive_contents(target_folder, sandbox)
 
     def test_recognize_bad_archive(self, tmpdir):
         target_path = str(tmpdir.join('x' + self.extension))
@@ -71,12 +101,30 @@ class TestCompressZip(CompressionMixin):
     extension = '.zip'
 
 
-def assert_contents(target_folder, sandbox):
+def assert_archive_contents(target_folder, sandbox):
+    # Include external file link as file
+    target_path = join(target_folder, 'external_file_link')
+    assert_file_contents(target_path, sandbox.external_file_path)
+    assert not islink(target_path)
     # Include internal file
-    old_text = open(sandbox.internal_path, 'rt').read()
-    new_text = open(join(target_folder, 'internal.txt')).read()
-    assert old_text == new_text
-    # Include external link
-    old_text = open(sandbox.external_path, 'rt').read()
-    new_text = open(join(target_folder, 'external_link')).read()
+    target_path = join(target_folder, 'internal_file')
+    assert_file_contents(target_path, sandbox.internal_file_path)
+    # Include empty folder
+    assert isdir(join(target_folder, 'empty_folder'))
+    # Include hidden file
+    target_path = join(target_folder, '.hidden_file')
+    assert_file_contents(target_path, sandbox.hidden_file_path)
+    # Include hidden folder
+    target_path = join(target_folder, '.hidden_folder', 'hidden_folder_file')
+    assert_file_contents(target_path, sandbox.hidden_folder_file_path)
+    # Include internal links
+    # assert islink(join(target_folder, 'external_file_link_link'))
+    # assert islink(join(target_folder, 'internal_file_link'))
+    # assert islink(join(target_folder, 'internal_file_link_link'))
+    # assert islink(join(target_folder, 'internal_folder_link'))
+
+
+def assert_file_contents(target_path, source_path):
+    old_text = open(source_path, 'rt').read()
+    new_text = open(target_path).read()
     assert old_text == new_text

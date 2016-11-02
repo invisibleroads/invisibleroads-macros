@@ -4,12 +4,11 @@ import re
 import tarfile
 import zipfile
 from contextlib import contextmanager
-from os import chdir, close, getcwd, makedirs, remove, walk
+from os import chdir, close, getcwd, listdir, makedirs, remove, walk
 from os.path import (
-    abspath, basename, dirname, exists, expanduser, join, realpath, relpath,
-    sep, splitext)
-from pathlib import Path
-from shutil import copy, copyfileobj, copytree, move, rmtree
+    abspath, basename, dirname, exists, expanduser, isdir, join, realpath,
+    relpath, sep, splitext)
+from shutil import copy, copyfileobj, move, rmtree
 from tempfile import mkdtemp, mkstemp
 
 from .exceptions import BadArchive
@@ -68,14 +67,37 @@ def make_unique_path(parent_folder=None, suffix='', prefix=''):
 
 def clean_folder(folder):
     'Remove folder contents but keep folder'
-    remove_safely(folder)
-    return make_folder(folder)
+    for x_name in listdir(folder):
+        x_path = join(folder, x_name)
+        remove_safely(x_path)
+    return folder
 
 
-def replace_folder(target_folder, source_folder):
-    'Replace target_folder with source_folder'
-    remove_safely(target_folder)
-    copytree(source_folder, target_folder)
+def copy_folder(target_folder, source_folder):
+    'Copy contents without removing target_folder'
+    if exists(target_folder):
+        clean_folder(target_folder)
+    else:
+        make_folder(target_folder)
+    for x_name in listdir(source_folder):
+        x_path = join(source_folder, x_name)
+        if isdir(x_path):
+            copy_folder(join(target_folder, x_name), x_path)
+        else:
+            copy(x_path, target_folder)
+    return target_folder
+
+
+def move_folder(target_folder, source_folder):
+    'Move contents without removing target_folder'
+    if not exists(target_folder):
+        move(source_folder, target_folder)
+        return target_folder
+    clean_folder(target_folder)
+    for x_name in listdir(source_folder):
+        x_path = join(source_folder, x_name)
+        move(x_path, target_folder)
+    remove_safely(source_folder)
     return target_folder
 
 
@@ -132,13 +154,9 @@ def compress_tar_gz(source_folder, target_path=None, excludes=None):
     'Compress folder as tar archive'
     if not target_path:
         target_path = source_folder + '.tar.gz'
+    source_folder = realpath(source_folder)
     with tarfile.open(target_path, 'w:gz', dereference=True) as target_file:
-        for path in Path(source_folder).rglob('*'):
-            if path.is_dir():
-                continue
-            if has_name_match(path, excludes):
-                continue
-            target_file.add(str(path), str(path.relative_to(source_folder)))
+        _process_folder(source_folder, excludes, target_file.add)
     return target_path
 
 
@@ -146,16 +164,11 @@ def compress_zip(source_folder, target_path=None, excludes=None):
     'Compress folder as zip archive'
     if not target_path:
         target_path = source_folder + '.zip'
+    source_folder = realpath(source_folder)
     with zipfile.ZipFile(
         target_path, 'w', zipfile.ZIP_DEFLATED, allowZip64=True,
     ) as target_file:
-        for path in Path(source_folder).rglob('*'):
-            if path.is_dir():
-                continue
-            if has_name_match(path, excludes):
-                continue
-            target_file.write(
-                str(path), str(path.relative_to(source_folder)))
+        _process_folder(source_folder, excludes, target_file.write)
     return target_path
 
 
@@ -287,11 +300,13 @@ def copy_path(target_folder, target_name, source_path):
 def link_path(target_folder, target_name, source_path):
     if not exists(source_path):
         raise IOError
+    target_path = join(target_folder, target_name)
+    if are_same_path(target_path, source_path):
+        return target_path
     try:
         from os import symlink  # Undefined in Windows
     except ImportError:
         return copy_path(target_folder, target_name, source_path)
-    target_path = join(target_folder, target_name)
     make_folder(dirname(remove_safely(target_path)))
     symlink(expand_path(source_path), expand_path(target_path))
     return target_path
@@ -305,3 +320,13 @@ def move_path(target_folder, target_name, source_path):
 
 def expand_path(path):
     return abspath(expanduser(path))
+
+
+def _process_folder(source_folder, excludes, write_path):
+    for root_folder, folders, names in walk(source_folder):
+        for source_name in folders + names:
+            if has_name_match(source_name, excludes):
+                continue
+            source_path = join(root_folder, source_name)
+            target_path = relpath(source_path, source_folder)
+            write_path(source_path, target_path)

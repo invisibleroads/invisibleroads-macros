@@ -1,4 +1,3 @@
-Release 0.6.8
-    Translate column name to existing column name format
-        Implement normalize_column_name(column_name, existing_column_names)
-    Use pathlib
+Test that copying folder updates internal links
+Test that moving folder updates internal links
+Compress links as links

@@ -25,7 +25,6 @@ setup(
         'pytest-runner',
     ],
     install_requires=[
-        'pathlib',
         'six',
     ],
     tests_require=[

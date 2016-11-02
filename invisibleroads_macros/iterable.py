@@ -1,5 +1,10 @@
 from collections import Callable, MutableSet, OrderedDict
 from copy import deepcopy
+from logging import NullHandler, getLogger
+
+
+LOG = getLogger(__name__)
+LOG.addHandler(NullHandler())
 
 
 class OrderedDefaultDict(OrderedDict):
@@ -149,6 +154,7 @@ def set_default(settings, key, default, parse=None):
     'Set key with default if it does not exist or parse value if it exists'
     if key not in settings:
         value = default
+        LOG.warn('Using default %s = %s' % (key, value))
     elif parse:
         value = parse(settings[key])
     settings[key] = value

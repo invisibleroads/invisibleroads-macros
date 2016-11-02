@@ -1,3 +1,4 @@
+import codecs
 import functools
 import re
 import shlex
@@ -56,9 +57,9 @@ def save_settings(configuration_path, **sections):
     configuration.read(configuration_path)
     for section_name, value_by_key in sections.items():
         configuration.add_section(section_name)
-        for key, value in value_by_key.items():
+        for key, value in (value_by_key or {}).items():
             configuration.set(section_name, key, value)
-    configuration.write(open(configuration_path, 'wt'))
+    configuration.write(codecs.open(configuration_path, 'w', encoding='utf-8'))
     return configuration_path
 
 
