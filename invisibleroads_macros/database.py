@@ -1,5 +1,6 @@
 from os.path import basename, join
 
+from .descriptor import classproperty
 from .disk import (
     make_enumerated_folder, make_unique_folder, resolve_relative_path)
 from .security import make_random_string
@@ -30,7 +31,11 @@ class FolderMixin(object):
 
     @classmethod
     def get_parent_folder(Class, data_folder):
-        return join(data_folder, Class.__tablename__)
+        return join(data_folder, Class._plural)
+
+    @classproperty
+    def _plural(Class):
+        return Class.__tablename__ + 's'
 
     def get_folder(self, data_folder):
         parent_folder = self.get_parent_folder(data_folder)
