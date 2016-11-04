@@ -7,9 +7,6 @@ def flip_geometry_coordinates(geometries):
         if hasattr(geometry, 'geoms'):
             flipped_geometry = geometry.__class__(
                 flip_geometry_coordinates(geometry.geoms))
-        elif hasattr(geometry, 'x'):
-            flipped_geometry = geometry.__class__(
-                flip_xy(geometry.coords[0]))
         else:
             flipped_geometry = copy(geometry)
             flipped_geometry.coords = [flip_xy(xyz) for xyz in geometry.coords]

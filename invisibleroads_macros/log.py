@@ -45,7 +45,7 @@ def format_nested_dictionary(
         left_hand_side = prefix + str(key)
         if isinstance(value, dict):
             parts.append(format_nested_dictionary(
-                value, suffix_format_packs, left_hand_side + '.'))
+                value, suffix_format_packs, left_hand_side + '.', censored))
             continue
         for suffix, format_value in suffix_format_packs or []:
             if key.endswith(suffix):

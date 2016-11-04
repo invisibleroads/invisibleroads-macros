@@ -34,7 +34,7 @@ class TestFolderMixin(object):
 
     def test_get_parent_folder(self, data_folder):
         parent_folder = X.get_parent_folder(data_folder)
-        assert basename(parent_folder) == X.__tablename__
+        assert basename(parent_folder) == X._plural
 
     def test_get_folder(self, data_folder):
         with raises(IOError):
