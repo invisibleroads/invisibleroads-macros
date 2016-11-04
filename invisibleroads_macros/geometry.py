@@ -1,20 +1,17 @@
 from copy import copy
 
 
-def flip_geometry_coordinates(geometries):
-    flipped_geometries = []
+def transform_geometries(geometries, f):
+    transformed_geometries = []
     for geometry in geometries:
         if hasattr(geometry, 'geoms'):
-            flipped_geometry = geometry.__class__(
-                flip_geometry_coordinates(geometry.geoms))
-        elif hasattr(geometry, 'x'):
-            flipped_geometry = geometry.__class__(
-                flip_xy(geometry.coords[0]))
+            transformed_geometry = geometry.__class__(transform_geometries(
+                geometry.geoms, f))
         else:
-            flipped_geometry = copy(geometry)
-            flipped_geometry.coords = [flip_xy(xyz) for xyz in geometry.coords]
-        flipped_geometries.append(flipped_geometry)
-    return flipped_geometries
+            transformed_geometry = copy(geometry)
+            transformed_geometry.coords = [f(xyz) for xyz in geometry.coords]
+        transformed_geometries.append(transformed_geometry)
+    return transformed_geometries
 
 
 def flip_xy(xyz):
@@ -22,3 +19,7 @@ def flip_xy(xyz):
     xyz = list(xyz)  # Preserve original
     xyz[0], xyz[1] = xyz[1], xyz[0]
     return tuple(xyz)
+
+
+def drop_z(xyz):
+    return xyz[:2]
