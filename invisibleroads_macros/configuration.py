@@ -8,6 +8,7 @@ from importlib import import_module
 from six.moves.configparser import NoSectionError, RawConfigParser
 
 from .iterable import merge_dictionaries
+from .log import format_summary
 
 
 class StoicArgumentParser(ArgumentParser):
@@ -52,14 +53,15 @@ def load_settings(configuration_path, section_name):
     return d
 
 
-def save_settings(configuration_path, **sections):
-    configuration = RawCaseSensitiveConfigParser()
-    configuration.read(configuration_path)
-    for section_name, value_by_key in sections.items():
-        configuration.add_section(section_name)
-        for key, value in (value_by_key or {}).items():
-            configuration.set(section_name, key, value)
-    configuration.write(codecs.open(configuration_path, 'w', encoding='utf-8'))
+def save_settings(
+        configuration_path, settings_by_section_name, censored=False):
+    configuration_parts = []
+    for section_name, settings in settings_by_section_name.items():
+        configuration_parts.append('[%s]' % section_name)
+        configuration_parts.append(format_summary(settings, censored=censored))
+        configuration_parts.append('')
+    configuration_file = codecs.open(configuration_path, 'w', encoding='utf-8')
+    configuration_file.write('\n'.join(configuration_parts).strip())
     return configuration_path
 
 
