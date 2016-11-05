@@ -4,6 +4,7 @@ from .descriptor import classproperty
 from .disk import (
     make_enumerated_folder, make_unique_folder, resolve_relative_path)
 from .security import make_random_string
+from .text import lower_first_character
 
 
 class DummyBase(object):
@@ -35,7 +36,8 @@ class FolderMixin(object):
 
     @classproperty
     def _plural(Class):
-        return Class.__tablename__ + 's'
+        name = getattr(Class, '__name__', Class.__class__.__name__)
+        return lower_first_character(name) + 's'
 
     def get_folder(self, data_folder):
         parent_folder = self.get_parent_folder(data_folder)

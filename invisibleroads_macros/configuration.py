@@ -11,6 +11,9 @@ from .iterable import merge_dictionaries
 from .log import format_summary
 
 
+SECTION_TEMPLATE = '[%s]\n%s\n'
+
+
 class StoicArgumentParser(ArgumentParser):
 
     def add_argument(self, *args, **kw):
@@ -53,16 +56,18 @@ def load_settings(configuration_path, section_name):
     return d
 
 
-def save_settings(
-        configuration_path, settings_by_section_name, censored=False):
+def save_settings(configuration_path, settings_by_section_name):
+    configuration_file = codecs.open(configuration_path, 'w', encoding='utf-8')
+    configuration_file.write(format_settings(settings_by_section_name) + '\n')
+    return configuration_path
+
+
+def format_settings(settings_by_section_name):
     configuration_parts = []
     for section_name, settings in settings_by_section_name.items():
-        configuration_parts.append('[%s]' % section_name)
-        configuration_parts.append(format_summary(settings, censored=censored))
-        configuration_parts.append('')
-    configuration_file = codecs.open(configuration_path, 'w', encoding='utf-8')
-    configuration_file.write('\n'.join(configuration_parts).strip())
-    return configuration_path
+        configuration_parts.append(SECTION_TEMPLATE % (
+            section_name, format_summary(settings)))
+    return '\n'.join(configuration_parts).strip()
 
 
 def parse_settings(settings, prefix, parse_setting=None):

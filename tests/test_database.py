@@ -6,13 +6,11 @@ from invisibleroads_macros.database import (
 
 
 class X(FolderMixin, DummyBase):
-
-    __tablename__ = 'folder'
+    pass
 
 
 class Y(UserFolderMixin, DummyBase):
-
-    __tablename__ = 'user_folder'
+    pass
 
 
 class TestFolderMixin(object):

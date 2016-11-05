@@ -1,6 +1,5 @@
 from __future__ import print_function
 
-
 import os
 import re
 import traceback
@@ -8,6 +7,19 @@ from collections import OrderedDict
 from os.path import expanduser
 from six import string_types
 from sys import stderr
+
+from .fallbacks import COMMAND_LINE_HOME
+
+
+def filter_nested_dictionary(value_by_key, f):
+    d = OrderedDict()
+    for k, v in value_by_key.items():
+        if f(k):
+            continue
+        if hasattr(v, 'items'):
+            v = filter_nested_dictionary(v, f)
+        d[k] = v
+    return d
 
 
 def print_error(x, *args):
@@ -26,26 +38,23 @@ def stylize_dictionary(value_by_key, suffix_format_packs):
     return d
 
 
-def format_summary(value_by_key, suffix_format_packs=None, censored=False):
+def format_summary(value_by_key, suffix_format_packs=None):
     format_by_suffix = OrderedDict([
         ('_folder', format_path),
         ('_path', format_path),
     ] + (suffix_format_packs or []))
-    return format_nested_dictionary(
-        OrderedDict(value_by_key), format_by_suffix.items(), censored=censored)
+    return format_nested_dictionary(OrderedDict(
+        value_by_key), format_by_suffix.items())
 
 
 def format_nested_dictionary(
-        value_by_key, suffix_format_packs=None, prefix='', censored=False):
+        value_by_key, suffix_format_packs=None, prefix=''):
     parts = []
-    if censored:
-        value_by_key = OrderedDict(
-            x for x in value_by_key.items() if not x[0].startswith('_'))
     for key, value in value_by_key.items():
         left_hand_side = prefix + str(key)
-        if isinstance(value, dict):
+        if hasattr(value, 'items'):
             parts.append(format_nested_dictionary(
-                value, suffix_format_packs, left_hand_side + '.', censored))
+                value, suffix_format_packs, left_hand_side + '.'))
             continue
         for suffix, format_value in suffix_format_packs or []:
             if key.endswith(suffix):
@@ -61,9 +70,7 @@ def format_nested_dictionary(
 
 
 def format_path(x):
-    if os.name == 'posix':
-        x = re.sub(r'^' + expanduser('~'), '~', x)
-    return x
+    return re.sub(r'^' + expanduser('~'), COMMAND_LINE_HOME, x)
 
 
 def format_hanging_indent(x):
