@@ -14,6 +14,9 @@ from tempfile import mkdtemp, mkstemp
 from .exceptions import BadArchive
 
 
+BAD_RELATIVE_PATH = 'relative path must be inside folder'
+
+
 class TemporaryFolder(object):
 
     def __init__(self, parent_folder=None, suffix='', prefix='tmp'):
@@ -135,7 +138,7 @@ def find_paths(name_expression, folder):
 def resolve_relative_path(relative_path, folder):
     relative_path = relpath(join(folder, relative_path), folder)
     if relative_path.startswith('.'):
-        raise IOError('relative_path must refer to a file inside folder')
+        raise IOError(BAD_RELATIVE_PATH)
     return join(folder, relative_path)
 
 

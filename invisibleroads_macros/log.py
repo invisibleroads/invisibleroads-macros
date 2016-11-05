@@ -1,10 +1,9 @@
 from __future__ import print_function
 
-import os
 import re
 import traceback
 from collections import OrderedDict
-from os.path import expanduser
+from os.path import expanduser, isabs, join, relpath
 from six import string_types
 from sys import stderr
 
@@ -165,3 +164,31 @@ def parse_nested_dictionary(text, is_key=lambda x: True):
 
 def log_traceback(log, d=None):
     log.error(traceback.format_exc() + str(d))
+
+
+def make_absolute_paths(d, folder):
+    d = OrderedDict(d)
+    for k, v in d.items():
+        if hasattr(v, 'items'):
+            v = make_absolute_paths(v, folder)
+        elif is_path_key(k) and not isabs(v):
+            v = join(folder, v)
+        d[k] = v
+    return d
+
+
+def make_relative_paths(d, folder):
+    d = OrderedDict(d)
+    for k, v in d.items():
+        if hasattr(v, 'items'):
+            v = make_relative_paths(v, folder)
+        elif is_path_key(k) and isabs(v):
+            v = relpath(v, folder)
+            if v.startswith('.'):
+                continue
+        d[k] = v
+    return d
+
+
+def is_path_key(k):
+    return k.endswith('_path') or k.endswith('_folder')
