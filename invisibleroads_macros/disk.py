@@ -8,7 +8,7 @@ from os import chdir, close, getcwd, listdir, makedirs, remove, walk
 from os.path import (
     abspath, basename, dirname, exists, expanduser, isdir, join, realpath,
     relpath, sep, splitext)
-from shutil import copy, copyfileobj, move, rmtree
+from shutil import copy2, copyfileobj, move, rmtree
 from tempfile import mkdtemp, mkstemp
 
 from .exceptions import BadArchive
@@ -87,7 +87,7 @@ def copy_folder(target_folder, source_folder):
         if isdir(x_path):
             copy_folder(join(target_folder, x_name), x_path)
         else:
-            copy(x_path, target_folder)
+            copy2(x_path, target_folder)
     return target_folder
 
 
@@ -282,41 +282,36 @@ def get_file_extension(file_name, max_length=16):
     return '.' + file_extension[-max_length:]
 
 
-def copy_text(target_folder, target_name, source_text):
-    target_path = join(target_folder, target_name)
+def copy_text(target_path, source_text):
     codecs.open(target_path, 'w', encoding='utf-8').write(source_text)
     return target_path
 
 
-def copy_file(target_folder, target_name, source_file):
-    target_path = join(target_folder, target_name)
+def copy_file(target_path, source_file):
     copyfileobj(source_file, open(target_path, 'wb'))
     return target_path
 
 
-def copy_path(target_folder, target_name, source_path):
-    target_path = join(target_folder, target_name)
-    copy(source_path, target_path)
+def copy_path(target_path, source_path):
+    copy2(source_path, target_path)
     return target_path
 
 
-def link_path(target_folder, target_name, source_path):
+def link_path(target_path, source_path):
     if not exists(source_path):
         raise IOError
-    target_path = join(target_folder, target_name)
     if are_same_path(target_path, source_path):
         return target_path
     try:
         from os import symlink  # Undefined in Windows
     except ImportError:
-        return copy_path(target_folder, target_name, source_path)
+        return copy_path(target_path, source_path)
     make_folder(dirname(remove_safely(target_path)))
     symlink(expand_path(source_path), expand_path(target_path))
     return target_path
 
 
-def move_path(target_folder, target_name, source_path):
-    target_path = join(target_folder, target_name)
+def move_path(target_path, source_path):
     move(source_path, target_path)
     return target_path
 
