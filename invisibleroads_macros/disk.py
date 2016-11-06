@@ -136,7 +136,7 @@ def find_paths(name_expression, folder):
 
 
 def resolve_relative_path(relative_path, folder):
-    relative_path = relpath(join(folder, relative_path), folder)
+    relative_path = relpath(join(folder, expanduser(relative_path)), folder)
     if relative_path.startswith('.'):
         raise IOError(BAD_RELATIVE_PATH)
     return join(folder, relative_path)
@@ -321,10 +321,10 @@ def expand_path(path):
 
 
 def _process_folder(source_folder, excludes, write_path):
-    for root_folder, folders, names in walk(source_folder):
+    for root_folder, folders, names in walk(source_folder, followlinks=True):
         for source_name in folders + names:
             if has_name_match(source_name, excludes):
                 continue
             source_path = join(root_folder, source_name)
             target_path = relpath(source_path, source_folder)
-            write_path(source_path, target_path)
+            write_path(realpath(source_path), target_path)

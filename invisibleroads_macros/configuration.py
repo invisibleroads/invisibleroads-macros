@@ -6,8 +6,10 @@ import sys
 from argparse import ArgumentError, ArgumentParser
 from collections import OrderedDict
 from importlib import import_module
+from os.path import dirname, expanduser
 from six.moves.configparser import NoSectionError, RawConfigParser
 
+from .disk import expand_path, resolve_relative_path
 from .iterable import merge_dictionaries
 from .log import format_summary
 
@@ -45,6 +47,16 @@ class TerseArgumentParser(StoicArgumentParser):
 
 class RawCaseSensitiveConfigParser(RawConfigParser):
     optionxform = str
+
+
+def load_relative_settings(configuration_path, section_name):
+    settings = OrderedDict()
+    configuration_folder = dirname(expand_path(configuration_path))
+    for k, v in load_settings(configuration_path, section_name).items():
+        if k.endswith('_path') or k.endswith('_folder'):
+            v = resolve_relative_path(expanduser(v), configuration_folder)
+        settings[k] = v
+    return settings
 
 
 def load_settings(configuration_path, section_name):
