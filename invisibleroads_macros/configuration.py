@@ -4,6 +4,7 @@ import re
 import shlex
 import sys
 from argparse import ArgumentError, ArgumentParser
+from collections import OrderedDict
 from importlib import import_module
 from six.moves.configparser import NoSectionError, RawConfigParser
 
@@ -50,10 +51,10 @@ def load_settings(configuration_path, section_name):
     configuration = RawCaseSensitiveConfigParser()
     configuration.read(configuration_path)
     try:
-        d = dict(configuration.items(section_name))
+        items = configuration.items(section_name)
     except NoSectionError:
-        d = {}
-    return d
+        items = []
+    return OrderedDict(items)
 
 
 def save_settings(configuration_path, settings_by_section_name):
