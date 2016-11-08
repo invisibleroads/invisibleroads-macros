@@ -6,7 +6,7 @@ import sys
 from argparse import ArgumentError, ArgumentParser
 from collections import OrderedDict
 from importlib import import_module
-from os.path import dirname, expanduser
+from os.path import dirname, expanduser, isabs, join, relpath
 from six.moves.configparser import NoSectionError, RawConfigParser
 
 from .disk import expand_path, resolve_relative_path
@@ -132,3 +132,33 @@ def unicode_safely(x):
     if not hasattr(x, 'decode'):
         return x
     return x.decode(sys.getfilesystemencoding())
+
+
+def make_absolute_paths(d, folder):
+    d = OrderedDict(d)
+    for k, v in d.items():
+        if hasattr(v, 'items'):
+            v = make_absolute_paths(v, folder)
+        elif is_path_key(k) and v:
+            v = expanduser(v)
+            if not isabs(v):
+                v = join(folder, v)
+        d[k] = v
+    return d
+
+
+def make_relative_paths(d, folder):
+    d = OrderedDict(d)
+    for k, v in d.items():
+        if hasattr(v, 'items'):
+            v = make_relative_paths(v, folder)
+        elif is_path_key(k) and isabs(v):
+            v = relpath(v, folder)
+            if v.startswith('.'):
+                continue
+        d[k] = v
+    return d
+
+
+def is_path_key(k):
+    return k.endswith('_path') or k.endswith('_folder')
