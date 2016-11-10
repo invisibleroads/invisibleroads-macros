@@ -1,10 +1,10 @@
-from os.path import basename, join
+from os.path import basename, exists, join
+from pyramid.httpexceptions import HTTPNotFound
 
 from .descriptor import classproperty
 from .disk import (
     make_enumerated_folder, make_unique_folder, resolve_relative_path)
 from .security import make_random_string
-from .text import lower_first_character
 
 
 class DummyBase(object):
@@ -14,6 +14,17 @@ class DummyBase(object):
 
 
 class FolderMixin(object):
+
+    @classmethod
+    def get_from(Class, request):
+        key = Class.__tablename__ + '_id'
+        matchdict = request.matchdict
+        data_folder = request.data_folder
+        instance = Class(id=matchdict[key])
+        instance_folder = instance.get_folder(data_folder)
+        if not exists(instance_folder):
+            raise HTTPNotFound
+        return instance
 
     @classmethod
     def spawn(Class, data_folder, random_length=None, *args, **kw):
@@ -36,8 +47,7 @@ class FolderMixin(object):
 
     @classproperty
     def _plural(Class):
-        name = getattr(Class, '__name__', Class.__class__.__name__)
-        return lower_first_character(name) + 's'
+        return Class.__tablename__ + 's'
 
     def get_folder(self, data_folder):
         parent_folder = self.get_parent_folder(data_folder)
