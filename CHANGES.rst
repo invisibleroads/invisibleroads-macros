@@ -10,7 +10,7 @@
 ---
 - Add iterable.flatten_dictionaries, iterable.merge_dictionaries
 - Add log.format_summary, log.print_error
-- Add table.normalize_column_name
+- Add table.normalize_key
 - Filter keys in parse_nested_dictionary with is_key
 - Make disk.compress and disk.uncompress compatible with non-Linux
 

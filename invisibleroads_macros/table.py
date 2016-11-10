@@ -17,13 +17,11 @@ def duplicate_selected_column_names(selected_column_names, column_names):
     return list(column_names) + [x + suffix for x in selected_column_names]
 
 
-def normalize_column_name(
-        column_name,
-        word_separator=' ',
-        separate_camel_case=False,
+def normalize_key(
+        x, word_separator=' ', separate_camel_case=False,
         separate_letter_digit=False):
     """
-    Normalize name variations, using a variation of the method described in
+    Normalize key using a variation of the method described in
     http://stackoverflow.com/a/1176023/192092
 
     ONETwo   one two
@@ -33,19 +31,18 @@ def normalize_column_name(
     one2     one 2
     1two     1 two
     """
-    s = column_name
     if separate_camel_case:
-        s = UPPER_LOWER_PATTERN.sub(r'\1 \2', s)
-        s = LOWER_UPPER_PATTERN.sub(r'\1 \2', s)
-    s = s.lower()
+        x = UPPER_LOWER_PATTERN.sub(r'\1 \2', x)
+        x = LOWER_UPPER_PATTERN.sub(r'\1 \2', x)
+    x = x.lower()
     if separate_letter_digit:
-        s = LETTER_DIGIT_PATTERN.sub(r'\1 \2', s)
-        s = DIGIT_LETTER_PATTERN.sub(r'\1 \2', s)
+        x = LETTER_DIGIT_PATTERN.sub(r'\1 \2', x)
+        x = DIGIT_LETTER_PATTERN.sub(r'\1 \2', x)
     word_separators = ['-', '_', ' ']
     if word_separator not in word_separators:
         word_separators.append(word_separator)
     word_separator_expression = '[' + ''.join(word_separators) + ']'
     word_separator_pattern = re.compile(word_separator_expression)
-    s = word_separator_pattern.sub(' ', s)
-    s = compact_whitespace(s)
-    return s.replace(' ', word_separator)
+    x = word_separator_pattern.sub(' ', x)
+    x = compact_whitespace(x)
+    return x.replace(' ', word_separator)

@@ -1,8 +1,8 @@
-from invisibleroads_macros.table import normalize_column_name
+from invisibleroads_macros.table import normalize_key
 
 
-def test_normalize_column_name():
-    f = normalize_column_name
+def test_normalize_key():
+    f = normalize_key
     assert f('ONETwo', separate_camel_case=True) == 'one two'
     assert f('OneTwo', separate_camel_case=True) == 'one two'
     assert f('one-two') == 'one two'

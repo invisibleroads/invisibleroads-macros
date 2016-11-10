@@ -1,3 +1,4 @@
+from invisibleroads_macros.table import normalize_key
 from os.path import basename, exists, join
 from pyramid.httpexceptions import HTTPNotFound
 
@@ -17,7 +18,7 @@ class FolderMixin(object):
 
     @classmethod
     def get_from(Class, request):
-        key = Class.__tablename__ + '_id'
+        key = Class._singular + '_id'
         matchdict = request.matchdict
         data_folder = request.data_folder
         instance = Class(id=matchdict[key])
@@ -47,7 +48,12 @@ class FolderMixin(object):
 
     @classproperty
     def _plural(Class):
-        return Class.__tablename__ + 's'
+        return Class._singular + 's'
+
+    @classproperty
+    def _singular(Class):
+        key = getattr(Class, '__name__', Class.__class__.__name__)
+        return normalize_key(key, word_separator='_', separate_camel_case=True)
 
     def get_folder(self, data_folder):
         parent_folder = self.get_parent_folder(data_folder)
