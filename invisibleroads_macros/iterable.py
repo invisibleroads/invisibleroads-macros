@@ -154,7 +154,7 @@ def set_default(settings, key, default, parse=None):
     'Set key with default if it does not exist or parse value if it exists'
     if key not in settings:
         value = default
-        LOG.warn('Using default %s = %s' % (key, value))
+        LOG.warn('using default %s = %s' % (key, value))
     elif parse:
         value = parse(settings[key])
     settings[key] = value
