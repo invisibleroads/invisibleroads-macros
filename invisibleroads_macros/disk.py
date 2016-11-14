@@ -1,5 +1,6 @@
 import codecs
 import fnmatch
+import os
 import re
 import tarfile
 import zipfile
@@ -12,9 +13,6 @@ from shutil import copy2, copyfileobj, move, rmtree
 from tempfile import mkdtemp, mkstemp
 
 from .exceptions import BadArchive
-
-
-BAD_RELATIVE_PATH = 'relative path must be inside folder'
 
 
 class TemporaryFolder(object):
@@ -328,3 +326,8 @@ def _process_folder(source_folder, excludes, write_path):
             source_path = join(root_folder, source_name)
             target_path = relpath(source_path, source_folder)
             write_path(realpath(source_path), target_path)
+
+
+BAD_RELATIVE_PATH = 'relative path must be inside folder'
+COMMAND_LINE_HOME = '%UserProfile%' if os.name == 'nt' else '~'
+HOME_FOLDER = expanduser('~')

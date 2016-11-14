@@ -1,5 +1,17 @@
 from __future__ import print_function
 
+try:
+    from logging import NullHandler
+except ImportError:  # Python 2.6
+    from logging import Handler
+
+    class NullHandler(Handler):
+
+        def emit(self, record):
+            pass
+finally:
+    from logging import getLogger
+
 import re
 import traceback
 from collections import OrderedDict
@@ -7,7 +19,13 @@ from os.path import expanduser
 from six import string_types
 from sys import stderr
 
-from .fallbacks import COMMAND_LINE_HOME
+from .disk import COMMAND_LINE_HOME
+
+
+def get_log(name):
+    log = getLogger(name)
+    log.addHandler(NullHandler())
+    return log
 
 
 def filter_nested_dictionary(value_by_key, f):

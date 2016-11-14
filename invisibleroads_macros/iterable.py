@@ -152,11 +152,11 @@ def merge_dictionaries(*dictionaries):
 
 def set_default(settings, key, default, parse=None):
     'Set key with default if it does not exist or parse value if it exists'
+    value = settings.get(key, default)
     if key not in settings:
-        value = default
         LOG.warn('using default %s = %s' % (key, value))
     elif parse:
-        value = parse(settings[key])
+        value = parse(value)
     settings[key] = value
     return value
 
