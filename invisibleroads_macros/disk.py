@@ -298,6 +298,8 @@ def copy_path(target_path, source_path):
 def link_path(target_path, source_path):
     if not exists(source_path):
         raise IOError
+    if source_path.startswith(target_path):
+        raise ValueError
     if are_same_path(target_path, source_path):
         return target_path
     try:
