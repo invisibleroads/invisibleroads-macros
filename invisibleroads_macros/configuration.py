@@ -148,11 +148,15 @@ def make_absolute_paths(d, folder):
 
 
 def make_relative_paths(d, folder):
+    folder = expanduser(folder)
     d = OrderedDict(d)
     for k, v in d.items():
         if hasattr(v, 'items'):
             v = make_relative_paths(v, folder)
-        elif is_path_key(k) and isabs(v):
+        elif is_path_key(k):
+            v = expanduser(v)
+            if not isabs(v):
+                continue
             v = relpath(v, folder)
             if v.startswith('.'):
                 continue

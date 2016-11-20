@@ -5,7 +5,6 @@ from pyramid.httpexceptions import HTTPNotFound
 from .descriptor import classproperty
 from .disk import (
     make_enumerated_folder, make_unique_folder, resolve_relative_path)
-from .security import make_random_string
 
 
 class DummyBase(object):
@@ -39,7 +38,7 @@ class FolderMixin(object):
     def spawn_folder(Class, data_folder, random_length=None):
         parent_folder = Class.get_parent_folder(data_folder)
         return make_unique_folder(
-            parent_folder, make_random_string(random_length - 6)
+            parent_folder, length=random_length,
         ) if random_length else make_enumerated_folder(parent_folder)
 
     @classmethod
@@ -66,7 +65,7 @@ class UserFolderMixin(FolderMixin):
     def spawn_folder(Class, data_folder, random_length=None, owner_id=None):
         user_folder = Class.get_user_folder(data_folder, owner_id)
         return make_unique_folder(
-            user_folder, make_random_string(random_length - 6)
+            user_folder, length=random_length,
         ) if random_length else make_enumerated_folder(user_folder)
 
     @classmethod

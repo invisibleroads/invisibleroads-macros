@@ -10,9 +10,17 @@ from os.path import (
     abspath, basename, dirname, exists, expanduser, isdir, join, realpath,
     relpath, sep, splitext)
 from shutil import copy2, copyfileobj, move, rmtree
-from tempfile import mkdtemp, mkstemp
+from tempfile import _RandomNameSequence, mkdtemp, mkstemp
 
 from .exceptions import BadArchive
+from .security import make_random_string, ALPHABET
+
+
+BAD_RELATIVE_PATH = 'relative path must be inside folder'
+COMMAND_LINE_HOME = '%UserProfile%' if os.name == 'nt' else '~'
+HOME_FOLDER = expanduser('~')
+_MINIMUM_UNIQUE_LENGTH = 6
+_RandomNameSequence.characters = ALPHABET
 
 
 class TemporaryFolder(object):
@@ -52,15 +60,21 @@ def make_folder(folder):
     return folder
 
 
-def make_unique_folder(parent_folder=None, suffix='', prefix=''):
+def make_unique_folder(
+        parent_folder=None, suffix='', prefix='',
+        length=_MINIMUM_UNIQUE_LENGTH):
     if parent_folder:
         make_folder(parent_folder)
+    suffix = _prepare_suffix(suffix, length)
     return mkdtemp(suffix, prefix, parent_folder)
 
 
-def make_unique_path(parent_folder=None, suffix='', prefix=''):
+def make_unique_path(
+        parent_folder=None, suffix='', prefix='',
+        length=_MINIMUM_UNIQUE_LENGTH):
     if parent_folder:
         make_folder(parent_folder)
+    suffix = _prepare_suffix(suffix, length)
     descriptor, path = mkstemp(suffix, prefix, parent_folder)
     close(descriptor)
     return path
@@ -198,6 +212,10 @@ def are_same_path(path1, path2):
     return realpath(expand_path(path1)) == realpath(expand_path(path2))
 
 
+def is_x_parent_of_y(folder, path):
+    return realpath(path).startswith(realpath(folder))
+
+
 def has_name_match(path, expressions):
     name = basename(str(path))
     for expression in expressions or []:
@@ -296,18 +314,18 @@ def copy_path(target_path, source_path):
 
 
 def link_path(target_path, source_path):
-    if not exists(source_path):
-        raise IOError
-    if source_path.startswith(target_path):
-        raise ValueError
+    target_path = expanduser(target_path)
+    source_path = expanduser(source_path)
     if are_same_path(target_path, source_path):
         return target_path
+    if is_x_parent_of_y(target_path, source_path):
+        raise ValueError
     try:
         from os import symlink  # Undefined in Windows
     except ImportError:
         return copy_path(target_path, source_path)
     make_folder(dirname(remove_safely(target_path)))
-    symlink(expand_path(source_path), expand_path(target_path))
+    symlink(source_path, target_path)
     return target_path
 
 
@@ -320,6 +338,13 @@ def expand_path(path):
     return abspath(expanduser(path))
 
 
+def _prepare_suffix(suffix, length):
+    if length < _MINIMUM_UNIQUE_LENGTH:
+        raise ValueError(
+            'length must be greater than %s' % _MINIMUM_UNIQUE_LENGTH)
+    return make_random_string(length - _MINIMUM_UNIQUE_LENGTH) + suffix
+
+
 def _process_folder(source_folder, excludes, write_path):
     for root_folder, folders, names in walk(source_folder, followlinks=True):
         for source_name in folders + names:
@@ -328,8 +353,3 @@ def _process_folder(source_folder, excludes, write_path):
             source_path = join(root_folder, source_name)
             target_path = relpath(source_path, source_folder)
             write_path(realpath(source_path), target_path)
-
-
-BAD_RELATIVE_PATH = 'relative path must be inside folder'
-COMMAND_LINE_HOME = '%UserProfile%' if os.name == 'nt' else '~'
-HOME_FOLDER = expanduser('~')
