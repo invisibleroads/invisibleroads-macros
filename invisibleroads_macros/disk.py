@@ -316,6 +316,8 @@ def copy_path(target_path, source_path):
 def link_path(target_path, source_path):
     target_path = expanduser(target_path)
     source_path = expanduser(source_path)
+    if not exists(source_path):
+        raise IOError
     if are_same_path(target_path, source_path):
         return target_path
     if is_x_parent_of_y(target_path, source_path):

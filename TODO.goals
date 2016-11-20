@@ -2,3 +2,4 @@ Test that copying folder updates internal links
 Test that moving folder updates internal links
 Compress links as links unless the link is external
 Support relative source_path in link_path
+Write tests for link_path
