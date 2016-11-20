@@ -2,8 +2,50 @@ from os import symlink
 from os.path import dirname, isdir, islink, join
 from pytest import fixture, raises
 
-from invisibleroads_macros.disk import make_folder, compress, uncompress
+from invisibleroads_macros.disk import (
+    compress, get_file_basename, get_file_extension, make_folder, uncompress)
 from invisibleroads_macros.exceptions import BadArchive
+
+
+class O(object):
+    pass
+
+
+class CompressionMixin(object):
+
+    def test_include_external_link(self, sandbox, target_folder):
+        source_folder = sandbox.source_folder
+        target_path = compress(source_folder, source_folder + self.extension)
+        target_folder = uncompress(target_path, target_folder)
+        assert_archive_contents(target_folder, sandbox)
+
+    def test_resolve_source_folder_link(self, sandbox, target_folder):
+        source_folder = sandbox.source_folder_link_path
+        target_path = compress(source_folder, source_folder + self.extension)
+        target_folder = uncompress(target_path, target_folder)
+        assert_archive_contents(target_folder, sandbox)
+
+    def test_recognize_bad_archive(self, tmpdir):
+        target_path = str(tmpdir.join('x' + self.extension))
+        open(target_path, 'wt').write('123')
+        with raises(BadArchive):
+            uncompress(target_path)
+
+
+class TestCompressTar(CompressionMixin):
+    extension = '.tar.gz'
+
+
+class TestCompressZip(CompressionMixin):
+    extension = '.zip'
+
+
+def test_get_file_basename():
+    assert get_file_basename('file.txt.zip') == 'file'
+
+
+def test_get_file_extension():
+    assert get_file_extension('file.txt.zip') == '.txt.zip'
 
 
 @fixture
@@ -67,39 +109,6 @@ def sandbox(tmpdir):
 @fixture
 def target_folder(tmpdir):
     return str(tmpdir.join('target_folder'))
-
-
-class O(object):
-    pass
-
-
-class CompressionMixin(object):
-
-    def test_include_external_link(self, sandbox, target_folder):
-        source_folder = sandbox.source_folder
-        target_path = compress(source_folder, source_folder + self.extension)
-        target_folder = uncompress(target_path, target_folder)
-        assert_archive_contents(target_folder, sandbox)
-
-    def test_resolve_source_folder_link(self, sandbox, target_folder):
-        source_folder = sandbox.source_folder_link_path
-        target_path = compress(source_folder, source_folder + self.extension)
-        target_folder = uncompress(target_path, target_folder)
-        assert_archive_contents(target_folder, sandbox)
-
-    def test_recognize_bad_archive(self, tmpdir):
-        target_path = str(tmpdir.join('x' + self.extension))
-        open(target_path, 'wt').write('123')
-        with raises(BadArchive):
-            uncompress(target_path)
-
-
-class TestCompressTar(CompressionMixin):
-    extension = '.tar.gz'
-
-
-class TestCompressZip(CompressionMixin):
-    extension = '.zip'
 
 
 def assert_archive_contents(target_folder, sandbox):

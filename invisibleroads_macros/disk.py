@@ -8,7 +8,7 @@ from contextlib import contextmanager
 from os import chdir, close, getcwd, listdir, makedirs, remove, walk
 from os.path import (
     abspath, basename, dirname, exists, expanduser, isdir, join, realpath,
-    relpath, sep, splitext)
+    relpath, sep)
 from shutil import copy2, copyfileobj, move, rmtree
 from tempfile import _RandomNameSequence, mkdtemp, mkstemp
 
@@ -279,20 +279,26 @@ def change_owner_and_group_recursively(target_folder, target_username):
     lchown(target_folder, target_uid, target_gid)
 
 
+def replace_file_extension(path, extension):
+    parent_folder = dirname(path)
+    file_basename, file_extension = basename(path).split('.', 1)
+    return join(parent_folder, file_basename + extension)
+
+
 def get_file_basename(path):
-    'Return file name without extension (x/y/z/file.txt -> file)'
-    return splitext(basename(path))[0]
+    'Return file name without extension (x/y/z/file.txt.zip -> file)'
+    return basename(path).split('.', 1)[0]
 
 
-def get_file_extension(file_name, max_length=16):
+def get_file_extension(path, max_length=16):
     # Extract extension
     try:
-        file_extension = file_name.split('.', 1)[1]
+        file_extension = basename(path).split('.', 1)[1]
     except IndexError:
         return ''
     # Sanitize characters
     file_extension = ''.join(x for x in file_extension if x.isalnum() or x in [
-        ',', '-', '_',
+        '.', '-', '_',
     ]).rstrip()
     # Limit length
     return '.' + file_extension[-max_length:]
