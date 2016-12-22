@@ -3,6 +3,7 @@ import fnmatch
 import os
 import re
 import tarfile
+import tempfile
 import zipfile
 from contextlib import contextmanager
 from os import chdir, close, getcwd, listdir, makedirs, remove, walk
@@ -19,8 +20,7 @@ from .security import make_random_string, ALPHABET
 BAD_RELATIVE_PATH = 'relative path must be inside folder'
 COMMAND_LINE_HOME = '%UserProfile%' if os.name == 'nt' else '~'
 HOME_FOLDER = expanduser('~')
-_MINIMUM_UNIQUE_LENGTH = 6
-_RandomNameSequence.characters = ALPHABET
+_MINIMUM_UNIQUE_LENGTH = 10
 
 
 class TemporaryFolder(object):
@@ -49,6 +49,16 @@ class TemporaryPath(object):
         super(TemporaryPath, self).__exit__(
             exception_type, exception_value, exception_traceback)
         remove_safely(self.path)
+
+
+class _CustomRandomNameSequence(_RandomNameSequence):
+
+    def next(self):
+        return self.__next__()
+
+    def __next__(self):
+        choose = self.rng.choice
+        return ''.join(choose(ALPHABET) for x in range(_MINIMUM_UNIQUE_LENGTH))
 
 
 def make_folder(folder):
@@ -361,3 +371,6 @@ def _process_folder(source_folder, excludes, write_path):
             source_path = join(root_folder, source_name)
             target_path = relpath(source_path, source_folder)
             write_path(realpath(source_path), target_path)
+
+
+tempfile._name_sequence = _CustomRandomNameSequence()

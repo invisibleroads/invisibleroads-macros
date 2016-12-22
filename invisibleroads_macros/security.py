@@ -2,7 +2,10 @@ import random
 import string
 
 
-ALPHABET = string.digits + string.letters
+try:
+    ALPHABET = string.digits + string.letters
+except AttributeError:
+    ALPHABET = string.digits + string.ascii_letters
 
 
 def make_random_string(
