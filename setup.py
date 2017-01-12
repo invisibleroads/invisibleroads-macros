@@ -25,6 +25,7 @@ setup(
         'pytest-runner',
     ],
     install_requires=[
+        'attrs',
         'six',
     ],
     tests_require=[

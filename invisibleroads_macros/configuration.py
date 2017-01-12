@@ -1,3 +1,4 @@
+import attr
 import codecs
 import functools
 import re
@@ -166,3 +167,32 @@ def make_relative_paths(d, folder):
 
 def is_path_key(k):
     return k.endswith('_path') or k.endswith('_folder')
+
+
+def encode_object(o):
+    """
+    Use with json.dumps to serialize classes to JSON.
+
+    x = json.dumps(d, default=encode_object)
+    """
+    if hasattr(o, '__attrs_attrs__'):
+        d = attr.asdict(o)
+        d['__class__'] = o.__class__.__name__
+        return d
+    raise TypeError(repr(o) + ' is not JSON serializable')
+
+
+def define_decode_object(class_by_name):
+    """
+    Use with json.loads to deserialize classes from JSON.
+
+    decode_object = define_decode_object(globals())
+    d = json.loads(x, object_hook=decode_object)
+    """
+    def decode_object(d):
+        if '__class__' in d:
+            class_name = d.pop('__class__')
+            Class = class_by_name[class_name]
+            return Class(**d)
+        return d
+    return decode_object
