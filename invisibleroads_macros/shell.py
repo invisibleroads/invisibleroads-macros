@@ -59,6 +59,11 @@ def schedule_shell_callback(minute_count, shell_text):
     stdout, stderr = Popen([
         'at', 'now + %s minutes' % minute_count,
     ], stdin=PIPE, stdout=PIPE, stderr=PIPE).communicate(shell_text + '\n')
-    job_id, when_string = re.search('job (\d+) at (.+)', stderr).groups()
+    callback_id, when_string = re.search('job (\d+) at (.+)', stderr).groups()
     when = datetime.datetime.strptime(when_string, '%a %b %d %H:%M:%S %Y')
-    return job_id, when
+    return callback_id, when
+
+
+def cancel_callback(callback_id):
+    process = Popen(['atrm', callback_id])
+    process.wait()
