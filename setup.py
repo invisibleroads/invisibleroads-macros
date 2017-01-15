@@ -21,9 +21,6 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     zip_safe=False,
-    setup_requires=[
-        'pytest-runner',
-    ],
     install_requires=[
         'attrs',
         'simplejson',

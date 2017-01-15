@@ -1,3 +1,4 @@
+import attr
 import datetime
 import re
 import shlex
@@ -7,6 +8,13 @@ from subprocess import CalledProcessError, Popen, check_output, PIPE, STDOUT
 from urllib import urlencode
 
 from .exceptions import InvisibleRoadsError
+
+
+@attr.s
+class Callback(object):
+
+    id = attr.ib()
+    datetime = attr.ib()
 
 
 def run_command(command, exception_by_error=None):
@@ -60,8 +68,8 @@ def schedule_shell_callback(minute_count, shell_text):
         'at', 'now + %s minutes' % minute_count,
     ], stdin=PIPE, stdout=PIPE, stderr=PIPE).communicate(shell_text + '\n')
     callback_id, when_string = re.search('job (\d+) at (.+)', stderr).groups()
-    when = datetime.datetime.strptime(when_string, '%a %b %d %H:%M:%S %Y')
-    return callback_id, when
+    return Callback(id=callback_id, datetime=datetime.datetime.strptime(
+        when_string, '%a %b %d %H:%M:%S %Y'))
 
 
 def cancel_callback(callback_id):
