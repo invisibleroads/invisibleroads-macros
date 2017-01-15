@@ -64,14 +64,19 @@ def schedule_curl_callback(
 
 
 def schedule_shell_callback(minute_count, shell_text):
-    stdout, stderr = Popen([
+    process = Popen([
         'at', 'now + %s minutes' % minute_count,
-    ], stdin=PIPE, stdout=PIPE, stderr=PIPE).communicate(shell_text + '\n')
-    callback_id, when_string = re.search('job (\d+) at (.+)', stderr).groups()
+    ], stdin=PIPE, stdout=PIPE, stderr=PIPE)
+    stdout, stderr = process.communicate(shell_text + '\n')
+    try:
+        callback_id, when_string = re.search(
+            'job (\d+) at (.+)', stderr).groups()
+    except AttributeError:
+        raise InvisibleRoadsError('cannot schedule callback')
     return Callback(id=callback_id, datetime=datetime.datetime.strptime(
         when_string, '%a %b %d %H:%M:%S %Y'))
 
 
 def cancel_callback(callback_id):
-    process = Popen(['atrm', callback_id])
+    process = Popen(['atrm', str(callback_id)])
     process.wait()
