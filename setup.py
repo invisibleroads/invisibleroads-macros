@@ -22,7 +22,7 @@ setup(
     include_package_data=True,
     zip_safe=False,
     setup_requires=[
-        'pytest-runner'
+        'pytest-runner',
     ],
     install_requires=[
         'attrs',
