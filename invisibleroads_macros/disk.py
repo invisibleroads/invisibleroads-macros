@@ -138,7 +138,7 @@ def remove_safely(path):
     return path
 
 
-def find_path(file_name, folder):
+def find_path(folder, file_name):
     'Locate file in folder'
     for root_folder, folder_names, file_names in walk(folder):
         if file_name in file_names:
@@ -149,12 +149,13 @@ def find_path(file_name, folder):
     return file_path
 
 
-def find_paths(name_expression, folder):
+def find_paths(folder, include_expression='*', exclude_expression=''):
     'Locate files in folder matching expression'
     return [
         join(root_folder, file_name)
         for root_folder, folder_names, file_names in walk(folder)
-        for file_name in fnmatch.filter(file_names, name_expression)]
+        for file_name in fnmatch.filter(file_names, include_expression)
+        if not fnmatch.fnmatch(file_name, exclude_expression)]
 
 
 def resolve_relative_path(relative_path, folder):
@@ -314,17 +315,24 @@ def get_file_extension(path, max_length=16):
     return '.' + file_extension[-max_length:]
 
 
+def load_text(source_path):
+    return codecs.open(source_path, 'r', encoding='utf-8')
+
+
 def copy_text(target_path, source_text):
+    _prepare_path(target_path)
     codecs.open(target_path, 'w', encoding='utf-8').write(source_text)
     return target_path
 
 
 def copy_file(target_path, source_file):
+    _prepare_path(target_path)
     copyfileobj(source_file, open(target_path, 'wb'))
     return target_path
 
 
 def copy_path(target_path, source_path):
+    _prepare_path(target_path)
     copy2(source_path, target_path)
     return target_path
 
@@ -342,18 +350,24 @@ def link_path(target_path, source_path):
         from os import symlink  # Undefined in Windows
     except ImportError:
         return copy_path(target_path, source_path)
-    make_folder(dirname(remove_safely(target_path)))
+    _prepare_path(target_path)
     symlink(source_path, target_path)
     return target_path
 
 
 def move_path(target_path, source_path):
+    _prepare_path(target_path)
     move(source_path, target_path)
     return target_path
 
 
 def expand_path(path):
     return abspath(expanduser(path))
+
+
+def _prepare_path(path):
+    make_folder(dirname(remove_safely(path)))
+    return path
 
 
 def _prepare_suffix(suffix, length):
