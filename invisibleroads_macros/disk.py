@@ -316,7 +316,7 @@ def get_file_extension(path, max_length=16):
 
 
 def load_text(source_path):
-    return codecs.open(source_path, 'r', encoding='utf-8')
+    return codecs.open(source_path, 'r', encoding='utf-8').read()
 
 
 def copy_text(target_path, source_text):
