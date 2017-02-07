@@ -70,17 +70,20 @@ def load_settings(configuration_path, section_name):
     return OrderedDict(items)
 
 
-def save_settings(configuration_path, settings_by_section_name):
+def save_settings(
+        configuration_path, settings_by_section_name,
+        suffix_format_packs=None):
     configuration_file = codecs.open(configuration_path, 'w', encoding='utf-8')
-    configuration_file.write(format_settings(settings_by_section_name) + '\n')
+    configuration_file.write(format_settings(
+        settings_by_section_name, suffix_format_packs) + '\n')
     return configuration_path
 
 
-def format_settings(settings_by_section_name):
+def format_settings(settings_by_section_name, suffix_format_packs=None):
     configuration_parts = []
     for section_name, settings in settings_by_section_name.items():
         configuration_parts.append(SECTION_TEMPLATE % (
-            section_name, format_summary(settings)))
+            section_name, format_summary(settings, suffix_format_packs)))
     return '\n'.join(configuration_parts).strip()
 
 

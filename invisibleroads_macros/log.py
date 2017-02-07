@@ -56,12 +56,13 @@ def stylize_dictionary(value_by_key, suffix_format_packs):
 
 
 def format_summary(value_by_key, suffix_format_packs=None):
-    format_by_suffix = OrderedDict([
+    suffix_format_packs = list(suffix_format_packs or [])
+    suffix_format_packs.extend([
         ('_folder', format_path),
         ('_path', format_path),
-    ] + (suffix_format_packs or []))
+    ])
     return format_nested_dictionary(OrderedDict(
-        value_by_key), format_by_suffix.items())
+        value_by_key), suffix_format_packs)
 
 
 def format_nested_dictionary(
@@ -75,15 +76,27 @@ def format_nested_dictionary(
             continue
         for suffix, format_value in suffix_format_packs or []:
             if key.endswith(suffix):
-                parts.append(left_hand_side + ' = ' + format_value(value))
+                parts.append(format_assigment(
+                    left_hand_side, format_value(value)))
                 break
         else:
             if not isinstance(value, string_types):
                 value = str(value)
             if '\n' in value:
                 value = format_indented_block(value)
-            parts.append(left_hand_side + ' = ' + value)
+            parts.append(format_assigment(
+                left_hand_side, value))
     return '\n'.join(parts)
+
+
+def format_assigment(left_hand_side, right_hand_side):
+    left_hand_side = left_hand_side.strip()
+    if right_hand_side.startswith('\n'):
+        operator = ' ='
+    else:
+        operator = ' = '
+        right_hand_side = right_hand_side.strip()
+    return left_hand_side + operator + right_hand_side
 
 
 def format_path(x):
