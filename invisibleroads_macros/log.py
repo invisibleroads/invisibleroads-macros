@@ -116,6 +116,20 @@ def format_indented_block(x):
     return '\n' + '\n'.join('  ' + line for line in x.strip().splitlines())
 
 
+def format_decimal(x, fractional_digit_count=2):
+    template = '{:,.%sf}' % fractional_digit_count
+    return template.format(x)
+
+
+def format_delta(x):
+    template = '{:+,}'
+    return template.format(x)
+
+
+def format_number(x):
+    return format_decimal(x, fractional_digit_count=0)
+
+
 def get_nested_dictionary(nested_lists):
     d = OrderedDict()
     for k, v in nested_lists:
