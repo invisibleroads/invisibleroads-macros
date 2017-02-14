@@ -118,16 +118,10 @@ def resolve_attribute(attribute_spec):
 
 
 def split_arguments(command_string):
-    # Strip line breaks: \ for POSIX, ^ for Windows
-    lines = []
-    for line in command_string.splitlines():
-        lines.append(line.rstrip(' \\^'))
-    string = ' '.join(lines)
-    # Split terms
     try:
-        xs = shlex.split(string)
+        xs = shlex.split(command_string)
     except UnicodeEncodeError:
-        xs = shlex.split(string.encode('utf-8'))
+        xs = shlex.split(command_string.encode('utf-8'))
     return [x.strip() for x in xs]
 
 

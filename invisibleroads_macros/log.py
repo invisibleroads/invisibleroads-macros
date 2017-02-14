@@ -22,6 +22,9 @@ from sys import stderr
 from .disk import COMMAND_LINE_HOME
 
 
+INDENT = ' ' * 2
+
+
 def get_log(name):
     log = getLogger(name)
     log.addHandler(NullHandler())
@@ -103,17 +106,8 @@ def format_path(x):
     return re.sub(r'^' + expanduser('~'), COMMAND_LINE_HOME, x)
 
 
-def format_hanging_indent(x):
-    lines = x.strip().splitlines()
-    if not lines:
-        return ''
-    if len(lines) == 1:
-        return lines[0]
-    return lines[0] + '\n' + '\n'.join('  ' + line for line in lines[1:])
-
-
-def format_indented_block(x):
-    return '\n' + '\n'.join('  ' + line for line in x.strip().splitlines())
+def format_indented_block(x, indent=INDENT):
+    return '\n' + '\n'.join(indent + line.strip() for line in x.splitlines())
 
 
 def format_decimal(x, fractional_digit_count=2):
@@ -173,10 +167,10 @@ def parse_nested_dictionary_from(raw_dictionary, max_depth=float('inf')):
     return value_by_key
 
 
-def parse_nested_dictionary(text, is_key=lambda x: True):
+def parse_nested_dictionary(text, is_key=lambda x: True, indent=INDENT):
     raw_dictionary, key = OrderedDict(), None
     for line in text.splitlines():
-        if line.startswith('  '):
+        if line.startswith(indent):
             if key is not None:
                 value = line[2:].rstrip()
                 raw_dictionary[key].append(value)
