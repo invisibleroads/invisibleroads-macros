@@ -1,7 +1,9 @@
 0.8
 ---
-- Define encode_object, define_decode_object
-- Define schedule_shell_callback, schedule_curl_callback
+- Add encode_object, define_decode_object
+- Add schedule_shell_callback, schedule_curl_callback
+- Add define_get_numbers
+- Add format_decimal, format_number
 
 0.7
 ---
