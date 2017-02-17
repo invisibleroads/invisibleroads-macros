@@ -193,3 +193,18 @@ def define_decode_object(class_by_name):
             return Class(**d)
         return d
     return decode_object
+
+
+def define_get_numbers(expression):
+
+    def get_numbers(settings):
+        numbers = []
+        number_pattern = re.compile(expression)
+        for k, v in settings.items():
+            match = number_pattern.match(k)
+            if not match:
+                continue
+            numbers.append(int(match.group(1)))
+        return sorted(numbers)
+
+    return get_numbers
