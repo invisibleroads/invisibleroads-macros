@@ -3,7 +3,6 @@ import codecs
 import functools
 import re
 import shlex
-import sys
 from argparse import ArgumentError, ArgumentParser
 from collections import OrderedDict
 from importlib import import_module
@@ -123,13 +122,6 @@ def split_arguments(command_string):
     except UnicodeEncodeError:
         xs = shlex.split(command_string.encode('utf-8'))
     return [x.strip() for x in xs]
-
-
-def unicode_safely(x):
-    # http://stackoverflow.com/a/23085282/192092
-    if not hasattr(x, 'decode'):
-        return x
-    return x.decode(sys.getfilesystemencoding())
 
 
 def make_absolute_paths(d, folder):

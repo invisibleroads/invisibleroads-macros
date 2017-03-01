@@ -1,4 +1,5 @@
 import re
+import sys
 
 
 WHITESPACE_PATTERN = re.compile(r'\s+', re.MULTILINE)
@@ -23,3 +24,10 @@ def remove_punctuation(string):
 
 def parse_words(x):
     return x.replace(',', ' ').split()
+
+
+def unicode_safely(x):
+    # http://stackoverflow.com/a/23085282/192092
+    if not hasattr(x, 'decode'):
+        return x
+    return x.decode(sys.getfilesystemencoding())
