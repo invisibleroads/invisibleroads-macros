@@ -28,6 +28,7 @@ def parse_words(x):
 
 def unicode_safely(x):
     # http://stackoverflow.com/a/23085282/192092
-    if not hasattr(x, 'decode'):
+    try:
+        return x.decode(sys.getfilesystemencoding())
+    except (AttributeError, UnicodeEncodeError):
         return x
-    return x.decode(sys.getfilesystemencoding())
