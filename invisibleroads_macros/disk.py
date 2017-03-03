@@ -15,6 +15,7 @@ from tempfile import _RandomNameSequence, mkdtemp, mkstemp
 
 from .exceptions import BadArchive
 from .security import make_random_string, ALPHABET
+from .text import unicode_safely
 
 
 BAD_RELATIVE_PATH = 'relative path must be inside folder'
@@ -152,7 +153,7 @@ def find_path(folder, file_name):
 def find_paths(folder, include_expression='*', exclude_expression=''):
     'Locate files in folder matching expression'
     return [
-        join(root_folder, file_name)
+        unicode_safely(join(root_folder, file_name))
         for root_folder, folder_names, file_names in walk(folder)
         for file_name in fnmatch.filter(file_names, include_expression)
         if not fnmatch.fnmatch(file_name, exclude_expression)]
