@@ -8,8 +8,8 @@ import zipfile
 from contextlib import contextmanager
 from os import chdir, close, getcwd, listdir, makedirs, remove, walk
 from os.path import (
-    abspath, basename, dirname, exists, expanduser, isdir, join, realpath,
-    relpath, sep)
+    abspath, basename, dirname, exists, expanduser, isdir, islink, join,
+    realpath, relpath, sep)
 from shutil import copy2, copyfileobj, move, rmtree
 from tempfile import _RandomNameSequence, mkdtemp, mkstemp
 
@@ -101,16 +101,20 @@ def clean_folder(folder):
 
 def copy_folder(target_folder, source_folder):
     'Copy contents without removing target_folder'
+    from os import readlink, symlink
     if exists(target_folder):
         clean_folder(target_folder)
     else:
         make_folder(target_folder)
-    for x_name in listdir(source_folder):
-        x_path = join(source_folder, x_name)
-        if isdir(x_path):
-            copy_folder(join(target_folder, x_name), x_path)
+    for old_name in listdir(source_folder):
+        old_path = join(source_folder, old_name)
+        new_path = join(target_folder, old_name)
+        if islink(old_path):
+            symlink(readlink(old_path), new_path)
+        elif isdir(old_path):
+            copy_folder(new_path, old_path)
         else:
-            copy2(x_path, target_folder)
+            copy2(old_path, target_folder)
     return target_folder
 
 
