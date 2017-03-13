@@ -148,7 +148,7 @@ def make_relative_paths(d, folder):
             if not isabs(v):
                 continue
             v = relpath(v, folder)
-            if v.startswith('.'):
+            if v.startswith('..'):
                 continue
         d[k] = v
     return d
