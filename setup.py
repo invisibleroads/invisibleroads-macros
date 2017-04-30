@@ -16,7 +16,7 @@ setup(
     ],
     author='Roy Hyunjin Han',
     author_email='rhh@crosscompute.com',
-    url='http://invisibleroads.com',
+    url='https://github.com/invisibleroads/invisibleroads-macros',
     keywords='invisibleroads',
     packages=find_packages(),
     include_package_data=True,
