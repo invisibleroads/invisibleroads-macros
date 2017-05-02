@@ -5,7 +5,7 @@ import shlex
 import simplejson as json
 from six import string_types
 from subprocess import CalledProcessError, Popen, check_output, PIPE, STDOUT
-from urllib import urlencode
+from six.moves.urllib.parse import urlencode as format_query
 
 from .exceptions import InvisibleRoadsError
 
@@ -51,7 +51,7 @@ def schedule_curl_callback(
             headers['Content-Type'] = 'application/json'
             more_lines.append('-d \'%s\'' % json.dumps(value_by_key))
         else:
-            full_url += urlencode(value_by_key)
+            full_url += format_query(value_by_key)
     more_lines.extend(['-X %s' % method, full_url])
     # Prepare header_lines
     header_lines = []
