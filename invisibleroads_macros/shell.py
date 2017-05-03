@@ -67,7 +67,7 @@ def schedule_shell_callback(minute_count, shell_text):
     process = Popen([
         'at', 'now + %s minutes' % minute_count,
     ], stdin=PIPE, stdout=PIPE, stderr=PIPE)
-    stdout, stderr = process.communicate(shell_text + '\n')
+    stdout, stderr = process.communicate(shell_text.encode('utf-8') + '\n')
     try:
         callback_id, when_string = re.search(
             'job (\d+) at (.+)', stderr).groups()
