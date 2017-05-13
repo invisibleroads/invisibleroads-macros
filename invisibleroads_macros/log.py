@@ -79,7 +79,7 @@ def format_nested_dictionary(
             continue
         for suffix, format_value in suffix_format_packs or []:
             if key.endswith(suffix):
-                parts.append(format_assigment(
+                parts.append(format_assignment(
                     left_hand_side, format_value(value)))
                 break
         else:
@@ -87,12 +87,12 @@ def format_nested_dictionary(
                 value = str(value)
             if '\n' in value:
                 value = format_indented_block(value)
-            parts.append(format_assigment(
+            parts.append(format_assignment(
                 left_hand_side, value))
     return '\n'.join(parts)
 
 
-def format_assigment(left_hand_side, right_hand_side):
+def format_assignment(left_hand_side, right_hand_side):
     left_hand_side = left_hand_side.strip()
     if right_hand_side.startswith('\n'):
         operator = ' ='

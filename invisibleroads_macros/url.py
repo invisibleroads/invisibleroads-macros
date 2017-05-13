@@ -1,8 +1,30 @@
-# http://stackoverflow.com/a/1119769/192092
+from six.moves.urllib_parse import urlparse as parse_url
+
+
 PRONOUNCEABLE_ALPHABET = '23456789abcdefghijkmnpqrstuvwxyz'
 
 
+def format_url(origin='localhost', port=None, scheme=None):
+    if not origin:
+        origin = 'localhost'
+    if not origin.startswith('http'):
+        origin = 'http://' + origin
+    x = parse_url(origin)
+    port = port or x.port
+    scheme = scheme or x.scheme
+    if scheme == 'https' and (not port or port == 443):
+        url_template = '{scheme}://{hostname}'
+        port = 443
+    elif scheme == 'http' and (not port or port == 80):
+        url_template = '{scheme}://{hostname}'
+        port = 80
+    else:
+        url_template = '{scheme}://{hostname}:{port}'
+    return url_template.format(scheme=scheme, hostname=x.hostname, port=port)
+
+
 def encode_number(non_negative_integer, alphabet=PRONOUNCEABLE_ALPHABET):
+    # http://stackoverflow.com/a/1119769/192092
     if non_negative_integer < 0:
         raise ValueError
     if non_negative_integer == 0:
@@ -18,6 +40,7 @@ def encode_number(non_negative_integer, alphabet=PRONOUNCEABLE_ALPHABET):
 
 
 def decode_number(string, alphabet=PRONOUNCEABLE_ALPHABET):
+    # http://stackoverflow.com/a/1119769/192092
     base = len(alphabet)
     string_length = len(string)
     number = 0
