@@ -4,8 +4,8 @@ import re
 import shlex
 import simplejson as json
 from six import string_types
-from subprocess import CalledProcessError, Popen, check_output, PIPE, STDOUT
 from six.moves.urllib.parse import urlencode as format_query
+from subprocess import CalledProcessError, Popen, check_output, PIPE, STDOUT
 
 from .exceptions import InvisibleRoadsError
 
@@ -80,3 +80,10 @@ def schedule_shell_callback(minute_count, shell_text):
 def cancel_callback(callback_id):
     process = Popen(['atrm', str(callback_id)])
     process.wait()
+
+
+def format_variables_as_shell_script(d):
+    lines = []
+    for k, v in d.items():
+        lines.append('%s=%s' % (k.upper(), v))
+    return '\n'.join(lines)
