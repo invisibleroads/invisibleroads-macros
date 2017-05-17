@@ -7,6 +7,7 @@ from argparse import ArgumentError, ArgumentParser
 from collections import OrderedDict
 from importlib import import_module
 from os.path import dirname, expanduser, isabs, join, relpath
+from six import string_types
 from six.moves.configparser import NoSectionError, RawConfigParser
 
 from .disk import expand_path, resolve_relative_path
@@ -200,3 +201,9 @@ def define_get_numbers(expression):
         return sorted(numbers)
 
     return get_numbers
+
+
+def get_list(x):
+    if isinstance(x, string_types):
+        x = x.split()
+    return x
