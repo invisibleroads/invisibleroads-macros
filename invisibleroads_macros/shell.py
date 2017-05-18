@@ -85,5 +85,7 @@ def cancel_callback(callback_id):
 def format_variables_as_shell_script(d):
     lines = []
     for k, v in d.items():
+        if v is None:
+            v = ''
         lines.append('%s=%s' % (k.upper(), v))
     return '\n'.join(lines)
