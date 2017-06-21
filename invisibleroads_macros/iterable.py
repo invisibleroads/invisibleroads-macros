@@ -4,7 +4,7 @@ from copy import deepcopy
 from .log import get_log
 
 
-LOG = get_log(__name__)
+L = get_log(__name__)
 
 
 class OrderedDefaultDict(OrderedDict):
@@ -153,9 +153,9 @@ def merge_dictionaries(*dictionaries):
 def set_default(settings, key, default=None, parse=None):
     value = settings.get(key, default)
     if key not in settings:
-        LOG.warn('using default %s = %s' % (key, value))
+        L.warn('using default %s = %s' % (key, value))
     elif value in ('', None):
-        LOG.warn('missing %s' % key)
+        L.warn('missing %s' % key)
     elif parse:
         value = parse(value)
     settings[key] = value

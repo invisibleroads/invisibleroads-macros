@@ -11,11 +11,19 @@ from six import string_types
 from six.moves.configparser import NoSectionError, RawConfigParser
 
 from .disk import expand_path, resolve_relative_path
-from .iterable import merge_dictionaries
+from .iterable import merge_dictionaries, set_default
 from .log import format_summary
 
 
 SECTION_TEMPLATE = '[%s]\n%s\n'
+
+
+class Settings(dict):
+
+    def set(self, settings, prefix, key, default=None, parse=None):
+        value = set_default(settings, prefix + key, default, parse)
+        self[key] = value
+        return value
 
 
 class StoicArgumentParser(ArgumentParser):
