@@ -7,10 +7,6 @@ from invisibleroads_macros.disk import (
 from invisibleroads_macros.exceptions import BadArchive
 
 
-class O(object):
-    pass
-
-
 class CompressionMixin(object):
 
     def test_include_external_link(self, sandbox, target_folder):
@@ -38,6 +34,10 @@ class TestCompressTar(CompressionMixin):
 
 class TestCompressZip(CompressionMixin):
     extension = '.zip'
+
+
+class O(object):
+    pass
 
 
 def test_get_file_basename():
