@@ -70,7 +70,7 @@ def load_relative_settings(configuration_path, section_name):
 
 def load_settings(configuration_path, section_name):
     configuration = RawCaseSensitiveConfigParser()
-    configuration.read(configuration_path)
+    configuration.read(configuration_path, 'utf-8')
     try:
         items = configuration.items(section_name)
     except NoSectionError:
