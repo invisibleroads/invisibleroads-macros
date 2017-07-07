@@ -5,10 +5,11 @@ import re
 import shlex
 from argparse import ArgumentError, ArgumentParser
 from collections import OrderedDict
+from configparser import RawConfigParser
 from importlib import import_module
 from os.path import dirname, expanduser, isabs, join, relpath
 from six import string_types
-from six.moves.configparser import NoSectionError, RawConfigParser
+from six.moves.configparser import NoSectionError
 
 from .disk import expand_path, resolve_relative_path
 from .iterable import merge_dictionaries, set_default
