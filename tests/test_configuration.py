@@ -12,12 +12,15 @@ def test_parse_list():
 def test_parse_second_count():
     f = parse_second_count
     with raises(ValueError):
+        f(3.5)
+    with raises(ValueError):
         f('3')
     with raises(ValueError):
         f('3x')
     assert f('3h') == 3 * 60 * 60
     assert f('3m') == 3 * 60
     assert f('3s') == 3
+    assert f(3) == 3
 
 
 def test_set_default():

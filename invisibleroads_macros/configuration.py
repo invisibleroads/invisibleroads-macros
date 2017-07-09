@@ -230,6 +230,10 @@ def parse_list(x):
 
 
 def parse_second_count(x):
+    if isinstance(x, int):
+        return x
+    if not isinstance(x, string_types):
+        raise ValueError
     try:
         x_count, x_unit = re.match('(\d+)([hms])', x.strip()).groups()
     except AttributeError:
