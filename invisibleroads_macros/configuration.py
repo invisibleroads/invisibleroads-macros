@@ -12,10 +12,11 @@ from six import string_types
 from six.moves.configparser import NoSectionError
 
 from .disk import expand_path, resolve_relative_path
-from .iterable import merge_dictionaries, set_default
-from .log import format_summary
+from .iterable import merge_dictionaries
+from .log import format_summary, get_log
 
 
+L = get_log(__name__)
 SECTION_TEMPLATE = '[%s]\n%s\n'
 
 
@@ -59,6 +60,27 @@ class RawCaseSensitiveConfigParser(RawConfigParser):
     optionxform = str
 
 
+def set_default(settings, key, default=None, parse=None):
+    value = settings.get(key, default)
+    if key not in settings:
+        L.warn('using default %s = %s' % (key, value))
+    elif value in ('', None):
+        L.warn('missing %s' % key)
+    elif parse:
+        value = parse(value)
+    settings[key] = value
+    return value
+
+
+def save_settings(
+        configuration_path, settings_by_section_name,
+        suffix_format_packs=None):
+    configuration_file = codecs.open(configuration_path, 'w', encoding='utf-8')
+    configuration_file.write(format_settings(
+        settings_by_section_name, suffix_format_packs) + '\n')
+    return configuration_path
+
+
 def load_relative_settings(configuration_path, section_name):
     settings = OrderedDict()
     configuration_folder = dirname(expand_path(configuration_path))
@@ -79,15 +101,6 @@ def load_settings(configuration_path, section_name):
     return OrderedDict(items)
 
 
-def save_settings(
-        configuration_path, settings_by_section_name,
-        suffix_format_packs=None):
-    configuration_file = codecs.open(configuration_path, 'w', encoding='utf-8')
-    configuration_file.write(format_settings(
-        settings_by_section_name, suffix_format_packs) + '\n')
-    return configuration_path
-
-
 def format_settings(settings_by_section_name, suffix_format_packs=None):
     configuration_parts = []
     for section_name, settings in settings_by_section_name.items():
@@ -96,7 +109,7 @@ def format_settings(settings_by_section_name, suffix_format_packs=None):
     return '\n'.join(configuration_parts).strip()
 
 
-def parse_settings(settings, prefix, parse_setting=None):
+def gather_settings(settings, prefix, parse_setting=None):
     d = {}
     prefix_pattern = re.compile('^' + prefix.replace('.', r'\.'))
     if not parse_setting:
@@ -169,8 +182,7 @@ def is_path_key(k):
 
 
 def encode_object(o):
-    """
-    Use with json.dumps to serialize classes to JSON.
+    """Use with json.dumps to serialize classes to JSON.
 
     x = json.dumps(d, default=encode_object)
     """
@@ -182,8 +194,7 @@ def encode_object(o):
 
 
 def define_decode_object(class_by_name):
-    """
-    Use with json.loads to deserialize classes from JSON.
+    """Use with json.loads to deserialize classes from JSON.
 
     decode_object = define_decode_object(globals())
     d = json.loads(x, object_hook=decode_object)
@@ -197,9 +208,9 @@ def define_decode_object(class_by_name):
     return decode_object
 
 
-def define_get_numbers(expression):
+def define_gather_numbers(expression):
 
-    def get_numbers(settings):
+    def gather_numbers(settings):
         numbers = []
         number_pattern = re.compile(expression)
         for k, v in settings.items():
@@ -209,10 +220,23 @@ def define_get_numbers(expression):
             numbers.append(int(match.group(1)))
         return sorted(numbers)
 
-    return get_numbers
+    return gather_numbers
 
 
-def get_list(x):
+def parse_list(x):
     if isinstance(x, string_types):
         x = x.split()
     return x
+
+
+def parse_second_count(x):
+    try:
+        x_count, x_unit = re.match('(\d+)([hms])', x.strip()).groups()
+    except AttributeError:
+        raise ValueError
+    x_count = int(x_count)
+    if x_unit == 'h':
+        x_count *= 60 * 60
+    elif x_unit == 'm':
+        x_count *= 60
+    return x_count

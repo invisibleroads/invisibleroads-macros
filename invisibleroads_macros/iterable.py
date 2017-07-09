@@ -1,11 +1,6 @@
 from collections import Callable, MutableSet, OrderedDict
 from copy import deepcopy
 
-from .log import get_log
-
-
-L = get_log(__name__)
-
 
 class OrderedDefaultDict(OrderedDict):
     # http://stackoverflow.com/a/6190500/192092
@@ -148,18 +143,6 @@ def merge_dictionaries(*dictionaries):
             else:
                 d[outer_k] = d2
     return d
-
-
-def set_default(settings, key, default=None, parse=None):
-    value = settings.get(key, default)
-    if key not in settings:
-        L.warn('using default %s = %s' % (key, value))
-    elif value in ('', None):
-        L.warn('missing %s' % key)
-    elif parse:
-        value = parse(value)
-    settings[key] = value
-    return value
 
 
 def sort_dictionary(value_by_key, sorted_keys):

@@ -3,7 +3,7 @@
 - Add cut_and_strip
 - Add encode_object, define_decode_object
 - Add schedule_shell_callback, schedule_curl_callback
-- Add define_get_numbers
+- Add define_gather_numbers, parse_second_count
 - Add format_decimal, format_number
 
 0.7
@@ -12,7 +12,7 @@
 - Add disk.TemporaryFolder and disk.TemporaryPath
 - Add math.divide_safely
 - Remove parse_date_safely thanks to latest dateutil
-- Replace get_interpretation_by_name with parse_settings
+- Replace get_interpretation_by_name with gather_settings
 
 0.6
 ---
