@@ -3,6 +3,7 @@ import datetime
 import re
 import shlex
 import simplejson as json
+from math import ceil
 from six import string_types
 from six.moves.urllib.parse import urlencode as format_query
 from subprocess import CalledProcessError, Popen, check_output, PIPE, STDOUT
@@ -65,7 +66,7 @@ def schedule_curl_callback(
 
 def schedule_shell_callback(minute_count, shell_text):
     process = Popen([
-        'at', 'now + %s minutes' % minute_count,
+        'at', 'now + %s minutes' % int(ceil(minute_count)),
     ], stdin=PIPE, stdout=PIPE, stderr=PIPE)
     stdout, stderr = process.communicate((shell_text + '\n').encode('utf-8'))
     try:

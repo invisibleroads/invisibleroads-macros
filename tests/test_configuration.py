@@ -1,5 +1,5 @@
 from invisibleroads_macros.configuration import (
-    parse_list, parse_second_count, set_default)
+    parse_list, parse_minute_count, parse_second_count, set_default)
 from pytest import raises
 
 
@@ -7,6 +7,13 @@ def test_parse_list():
     f = parse_list
     assert f('one two') == ['one', 'two']
     assert f(['one', 'two']) == ['one', 'two']
+
+
+def test_parse_minute_count():
+    f = parse_minute_count
+    assert f('61s') == 2
+    assert f('60m') == 60
+    assert f('2h') == 120
 
 
 def test_parse_second_count():

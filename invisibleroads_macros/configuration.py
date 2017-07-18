@@ -7,6 +7,7 @@ from argparse import ArgumentError, ArgumentParser
 from collections import OrderedDict
 from configparser import RawConfigParser
 from importlib import import_module
+from math import ceil
 from os.path import dirname, expanduser, isabs, join, relpath
 from six import string_types
 from six.moves.configparser import NoSectionError
@@ -227,6 +228,10 @@ def parse_list(x):
     if isinstance(x, string_types):
         x = x.split()
     return x
+
+
+def parse_minute_count(x):
+    return int(ceil(parse_second_count(x) / 60.))
 
 
 def parse_second_count(x):
