@@ -7,7 +7,6 @@ from argparse import ArgumentError, ArgumentParser
 from collections import OrderedDict
 from configparser import RawConfigParser
 from importlib import import_module
-from math import ceil
 from os.path import dirname, expanduser, isabs, join, relpath
 from six import string_types
 from six.moves.configparser import NoSectionError
@@ -15,6 +14,7 @@ from six.moves.configparser import NoSectionError
 from .disk import expand_path, resolve_relative_path
 from .iterable import merge_dictionaries
 from .log import format_summary, get_log
+from .math import digitize
 
 
 L = get_log(__name__)
@@ -231,7 +231,7 @@ def parse_list(x):
 
 
 def parse_minute_count(x):
-    return int(ceil(parse_second_count(x) / 60.))
+    return digitize(parse_second_count(x) / 60.)
 
 
 def parse_second_count(x):
