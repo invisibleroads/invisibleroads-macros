@@ -1,4 +1,4 @@
-from math import ceil
+from math import ceil, floor
 
 
 def define_normalize(xs, ys):
@@ -16,7 +16,7 @@ def define_normalize(xs, ys):
 
 
 def digitize(x):
-    return int(ceil(x))
+    return int(ceil(x)) if x > 0 else int(floor(x))
 
 
 def divide_safely(numerator, denominator, default):
