@@ -11,7 +11,7 @@ from os.path import dirname, expanduser, isabs, join, relpath
 from six import string_types
 from six.moves.configparser import NoSectionError
 
-from .calculator import digitize
+from .calculator import get_int
 from .disk import expand_path, resolve_relative_path
 from .iterable import merge_dictionaries
 from .log import format_summary, get_log
@@ -231,7 +231,7 @@ def parse_list(x):
 
 
 def parse_minute_count(x):
-    return digitize(parse_second_count(x) / 60.)
+    return get_int(parse_second_count(x) / 60.)
 
 
 def parse_second_count(x):

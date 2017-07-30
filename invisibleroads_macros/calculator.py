@@ -15,16 +15,16 @@ def define_normalize(xs, ys):
     return normalize
 
 
-def digitize(x):
-    return int(ceil(x)) if x > 0 else int(floor(x))
-
-
 def divide_safely(numerator, denominator, default):
     if not denominator:
         if isinstance(default, Exception):
             raise default
         return default
     return numerator / float(denominator)
+
+
+def get_int(x):
+    return int(ceil(x)) if x > 0 else int(floor(x))
 
 
 def get_percent_change(new_value, old_value):

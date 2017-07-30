@@ -1,6 +1,6 @@
-from invisibleroads_macros.calculator import digitize
+from invisibleroads_macros.calculator import get_int
 
 
-def test_digitize():
-    assert digitize(0.1) == 1
-    assert digitize(-0.1) == -1
+def test_get_int():
+    assert get_int(0.1) == 1
+    assert get_int(-0.1) == -1
