@@ -7,8 +7,8 @@ from six import string_types
 from six.moves.urllib.parse import urlencode as format_query
 from subprocess import CalledProcessError, Popen, check_output, PIPE, STDOUT
 
+from .calculator import digitize
 from .exceptions import InvisibleRoadsError
-from .math import digitize
 
 
 @attr.s

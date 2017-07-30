@@ -11,10 +11,10 @@ from os.path import dirname, expanduser, isabs, join, relpath
 from six import string_types
 from six.moves.configparser import NoSectionError
 
+from .calculator import digitize
 from .disk import expand_path, resolve_relative_path
 from .iterable import merge_dictionaries
 from .log import format_summary, get_log
-from .math import digitize
 
 
 L = get_log(__name__)
