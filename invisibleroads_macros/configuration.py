@@ -1,15 +1,14 @@
 import attr
 import codecs
+import configparser
 import functools
 import re
 import shlex
 from argparse import ArgumentError, ArgumentParser
 from collections import OrderedDict
-from configparser import RawConfigParser
 from importlib import import_module
 from os.path import dirname, expanduser, isabs, join, relpath
 from six import string_types
-from six.moves.configparser import NoSectionError
 
 from .calculator import get_int
 from .disk import expand_path, resolve_relative_path
@@ -57,7 +56,7 @@ class TerseArgumentParser(StoicArgumentParser):
         self.add_argument('--' + argument_name, *args, **d)
 
 
-class RawCaseSensitiveConfigParser(RawConfigParser):
+class RawCaseSensitiveConfigParser(configparser.RawConfigParser):
     optionxform = str
 
 
@@ -97,7 +96,7 @@ def load_settings(configuration_path, section_name):
     configuration.read(configuration_path, 'utf-8')
     try:
         items = configuration.items(section_name)
-    except NoSectionError:
+    except configparser.NoSectionError:
         items = []
     return OrderedDict(items)
 
@@ -120,6 +119,9 @@ def gather_settings(settings, prefix, parse_setting=None):
             continue
         d = merge_dictionaries(d, parse_setting(prefix_pattern.sub('', k), v))
     return d
+
+
+parse_settings = gather_settings  # DEPRECATED
 
 
 def parse_raw_setting(k, v):
@@ -224,10 +226,16 @@ def define_gather_numbers(expression):
     return gather_numbers
 
 
+define_get_numbers = define_gather_numbers  # DEPRECATED
+
+
 def parse_list(x):
     if isinstance(x, string_types):
         x = x.split()
     return x
+
+
+get_list = parse_list  # DEPRECATED
 
 
 def parse_minute_count(x):

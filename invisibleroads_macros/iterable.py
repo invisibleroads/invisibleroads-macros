@@ -154,3 +154,9 @@ def sort_dictionary(value_by_key, sorted_keys):
         except KeyError:
             pass
     return d
+
+
+def set_default(*args, **kw):
+    # DEPRECATED
+    from .configuration import set_default
+    return set_default(*args, **kw)
