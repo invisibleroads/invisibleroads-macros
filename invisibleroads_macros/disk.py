@@ -11,6 +11,7 @@ from os.path import (
     abspath, basename, dirname, exists, expanduser, isdir, islink, join,
     realpath, relpath, sep)
 from shutil import copy2, copyfileobj, move, rmtree
+from six import text_type
 from tempfile import _RandomNameSequence, mkdtemp, mkstemp
 
 from .exceptions import BadArchive
@@ -24,31 +25,37 @@ HOME_FOLDER = expanduser('~')
 _MINIMUM_UNIQUE_LENGTH = 10
 
 
-class TemporaryFolder(object):
+class TemporaryFolder(text_type):
 
     def __init__(self, parent_folder=None, suffix='', prefix='tmp'):
+        if parent_folder is None:
+            parent_folder = make_folder(expanduser('~/.tmp'))
         self.folder = make_unique_folder(parent_folder, suffix, prefix)
+
+    def __str__(self):
+        return self.folder
 
     def __enter__(self):
         return self
 
     def __exit__(self, exception_type, exception_value, exception_traceback):
-        super(TemporaryFolder, self).__exit__(
-            exception_type, exception_value, exception_traceback)
         remove_safely(self.folder)
 
 
-class TemporaryPath(object):
+class TemporaryPath(text_type):
 
     def __init__(self, parent_folder=None, suffix='', prefix='tmp'):
+        if parent_folder is None:
+            parent_folder = make_folder(expanduser('~/.tmp'))
         self.path = make_unique_path(parent_folder, suffix, prefix)
+
+    def __str__(self):
+        return self.path
 
     def __enter__(self):
         return self
 
     def __exit__(self, exception_type, exception_value, exception_traceback):
-        super(TemporaryPath, self).__exit__(
-            exception_type, exception_value, exception_traceback)
         remove_safely(self.path)
 
 

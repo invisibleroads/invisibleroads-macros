@@ -1,9 +1,10 @@
 from os import symlink
-from os.path import dirname, isdir, islink, join
+from os.path import dirname, expanduser, isdir, islink, join
 from pytest import fixture, raises
 
 from invisibleroads_macros.disk import (
-    compress, get_file_basename, get_file_extension, make_folder, uncompress)
+    TemporaryFolder, compress, get_file_basename, get_file_extension,
+    make_folder, uncompress)
 from invisibleroads_macros.exceptions import BadArchive
 
 
@@ -34,6 +35,15 @@ class TestCompressTar(CompressionMixin):
 
 class TestCompressZip(CompressionMixin):
     extension = '.zip'
+
+
+class TestTemporaryFolder(object):
+
+    def test_parent_folder(self):
+        with TemporaryFolder() as temporary_folder:
+            assert str(temporary_folder).startswith(expanduser('~/.tmp/'))
+        with TemporaryFolder('/tmp') as temporary_folder:
+            assert str(temporary_folder).startswith('/tmp/')
 
 
 class O(object):
