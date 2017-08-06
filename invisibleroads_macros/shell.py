@@ -78,7 +78,7 @@ def schedule_shell_callback(minute_count, shell_text):
         when_string, '%a %b %d %H:%M:%S %Y'))
 
 
-def cancel_callback(callback_id):
+def cancel_shell_callback(callback_id):
     process = Popen(['atrm', str(callback_id)])
     process.wait()
 

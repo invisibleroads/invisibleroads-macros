@@ -121,9 +121,6 @@ def gather_settings(settings, prefix, parse_setting=None):
     return d
 
 
-parse_settings = gather_settings  # DEPRECATED
-
-
 def parse_raw_setting(k, v):
     return {k: v}
 
@@ -226,16 +223,10 @@ def define_gather_numbers(expression):
     return gather_numbers
 
 
-define_get_numbers = define_gather_numbers  # DEPRECATED
-
-
 def parse_list(x):
     if isinstance(x, string_types):
         x = x.split()
     return x
-
-
-get_list = parse_list  # DEPRECATED
 
 
 def parse_minute_count(x):

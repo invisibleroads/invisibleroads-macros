@@ -1,3 +1,4 @@
+import random
 from collections import Callable, MutableSet, OrderedDict
 from copy import deepcopy
 
@@ -156,7 +157,7 @@ def sort_dictionary(value_by_key, sorted_keys):
     return d
 
 
-def set_default(*args, **kw):
-    # DEPRECATED
-    from .configuration import set_default
-    return set_default(*args, **kw)
+def shuffled(items):
+    items = list(items)
+    random.shuffle(items)
+    return items
