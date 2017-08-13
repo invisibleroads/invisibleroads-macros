@@ -74,7 +74,7 @@ def schedule_shell_callback(minute_count, shell_text):
             'job (\d+) at (.+)', stderr.decode('utf-8')).groups()
     except AttributeError:
         raise InvisibleRoadsError('cannot schedule callback')
-    return Callback(id=callback_id, datetime=datetime.datetime.strptime(
+    return Callback(id=int(callback_id), datetime=datetime.datetime.strptime(
         when_string, '%a %b %d %H:%M:%S %Y'))
 
 
