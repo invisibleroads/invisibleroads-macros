@@ -4,9 +4,9 @@ from six.moves.urllib_parse import urlparse as parse_url
 PRONOUNCEABLE_ALPHABET = '23456789abcdefghijkmnpqrstuvwxyz'
 
 
-def format_url(origin='localhost', port=None, scheme=None):
+def format_url(origin='127.0.0.1', port=None, scheme=None):
     if not origin:
-        origin = 'localhost'
+        origin = '127.0.0.1'
     if not origin.startswith('http'):
         origin = 'http://' + origin
     x = parse_url(origin)
