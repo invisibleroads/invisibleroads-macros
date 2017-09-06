@@ -43,7 +43,8 @@ def run_raw_command(command, exception_by_error=None):
 
 
 def schedule_curl_callback(
-        minute_count, base_url, value_by_key=None, headers=None, method='GET'):
+        minute_count, base_url, value_by_key=None, headers=None, method='GET',
+        with_retry=True):
     # Prepare more_lines
     full_url = base_url
     more_lines = []
@@ -53,6 +54,8 @@ def schedule_curl_callback(
             more_lines.append('-d \'%s\'' % json.dumps(value_by_key))
         else:
             full_url += format_query(value_by_key)
+    if with_retry:
+        more_lines.extend(['--retry-connrefused', '--retry 7'])
     more_lines.extend(['-X %s' % method, full_url])
     # Prepare header_lines
     header_lines = []
