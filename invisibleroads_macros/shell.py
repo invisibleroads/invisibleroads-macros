@@ -55,7 +55,7 @@ def schedule_curl_callback(
         else:
             full_url += format_query(value_by_key)
     if with_retry:
-        more_lines.extend(['--retry-connrefused', '--retry 7'])
+        more_lines.extend(['--retry 7'])
     more_lines.extend(['-X %s' % method, full_url])
     # Prepare header_lines
     header_lines = []
