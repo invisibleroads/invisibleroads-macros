@@ -44,6 +44,8 @@ def filter_nested_dictionary(value_by_key, f):
 
 def print_error(x, *args):
     'Print to standard error stream'
+    if not isinstance(x, string_types):
+        x = str(x)
     print(x % args, file=stderr)
 
 
