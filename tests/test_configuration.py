@@ -1,6 +1,14 @@
 from invisibleroads_macros.configuration import (
-    parse_list, parse_minute_count, parse_second_count, set_default)
+    make_relative_path_safely, parse_list, parse_minute_count,
+    parse_second_count, set_default)
 from pytest import raises
+
+
+def test_make_relative_path_safely():
+    folder = '/tmp'
+    assert make_relative_path_safely('x', folder) == 'x'
+    assert make_relative_path_safely('/var/x', folder) == '/var/x'
+    assert make_relative_path_safely('/tmp/x', folder) == 'x'
 
 
 def test_parse_list():
