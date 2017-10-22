@@ -1,9 +1,10 @@
 import datetime
 
 
-def get_timestamp(with_microsecond=False):
-    now = datetime.datetime.now()
+def get_timestamp(x=None, with_microsecond=False):
+    if x is None:
+        x = datetime.datetime.now()
     if with_microsecond:
-        return now.strftime('%Y%m%d-%H%M-%f')
+        return x.strftime('%Y%m%d-%H%M-%f')
     else:
-        return now.strftime('%Y%m%d-%H%M')
+        return x.strftime('%Y%m%d-%H%M')
