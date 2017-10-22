@@ -7,7 +7,8 @@ from pytest import raises
 def test_make_relative_path_safely():
     folder = '/tmp'
     assert make_relative_path_safely('x', folder) == 'x'
-    assert make_relative_path_safely('/var/x', folder) == '/var/x'
+    assert make_relative_path_safely('/var/x', folder, False) == '/var/x'
+    assert make_relative_path_safely('/var/x', folder) == ''
     assert make_relative_path_safely('/tmp/x', folder) == 'x'
 
 
