@@ -109,7 +109,7 @@ def format_path(x):
 
 
 def format_indented_block(x, indent=INDENT):
-    return '\n' + '\n'.join(indent + line.strip() for line in x.splitlines())
+    return '\n' + '\n'.join(indent + line for line in x.splitlines())
 
 
 def format_decimal(x, fractional_digit_count=2):
