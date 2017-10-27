@@ -1,3 +1,9 @@
+0.9
+---
+- Define make_relative_path_safely
+- Deprecate define_get_numbers, get_list, parse_settings, set_default
+- Rename cancel_callback to cancel_shell_callback
+
 0.8
 ---
 - Add cut_and_strip
