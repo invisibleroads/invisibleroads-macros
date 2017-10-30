@@ -139,7 +139,7 @@ def merge_dictionaries(*dictionaries):
         for outer_k, outer_v in outer_d.items():
             d1 = d.get(outer_k, {})
             d2 = outer_v
-            if hasattr(d1, 'items') and hasattr(d2, 'items'):
+            if isinstance(d1, dict) and isinstance(d2, dict):
                 d[outer_k] = merge_dictionaries(d1, d2)
             else:
                 d[outer_k] = d2
