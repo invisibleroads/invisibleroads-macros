@@ -11,7 +11,6 @@ from os.path import (
     abspath, basename, dirname, exists, expanduser, isdir, islink, join,
     realpath, relpath, sep)
 from shutil import copy2, copyfileobj, move, rmtree
-from six import text_type
 from tempfile import _RandomNameSequence, mkdtemp, mkstemp
 
 from .exceptions import BadArchive
@@ -25,7 +24,7 @@ HOME_FOLDER = expanduser('~')
 _MINIMUM_UNIQUE_LENGTH = 10
 
 
-class TemporaryFolder(text_type):
+class TemporaryFolder(object):
 
     def __init__(self, parent_folder=None, suffix='', prefix='tmp'):
         if parent_folder is None:
@@ -42,7 +41,7 @@ class TemporaryFolder(text_type):
         remove_safely(self.folder)
 
 
-class TemporaryPath(text_type):
+class TemporaryPath(object):
 
     def __init__(self, parent_folder=None, suffix='', prefix='tmp'):
         if parent_folder is None:
