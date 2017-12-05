@@ -1,6 +1,6 @@
 0.9
 ---
-- Define make_relative_path_safely
+- Define make_relative_path_safely, make_tree
 - Deprecate define_get_numbers, get_list, parse_settings, set_default
 - Rename cancel_callback to cancel_shell_callback
 

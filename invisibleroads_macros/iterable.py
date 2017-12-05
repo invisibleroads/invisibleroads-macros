@@ -1,5 +1,5 @@
 import random
-from collections import Callable, MutableSet, OrderedDict
+from collections import Callable, MutableSet, OrderedDict, defaultdict
 from copy import deepcopy
 
 
@@ -130,6 +130,10 @@ def get_lists_from_tuples(xs):
     if isinstance(xs, (list, tuple)):
         return list(map(get_lists_from_tuples, xs))
     return xs
+
+
+def make_tree():
+    return defaultdict(make_tree)
 
 
 def merge_dictionaries(*dictionaries):

@@ -231,6 +231,10 @@ def define_gather_numbers(expression):
     return gather_numbers
 
 
+def parse_integers(x):
+    return [int(y) for y in parse_list(x)]
+
+
 def parse_list(x):
     if isinstance(x, string_types):
         x = x.split()
