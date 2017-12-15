@@ -23,6 +23,10 @@ def format_url(origin='127.0.0.1', port=None, scheme=None):
     return url_template.format(scheme=scheme, hostname=x.hostname, port=port)
 
 
+def normalize_url(x):
+    return x.lower().replace(' ', '-').replace('_', '-')
+
+
 def encode_number(non_negative_integer, alphabet=PRONOUNCEABLE_ALPHABET):
     # http://stackoverflow.com/a/1119769/192092
     if non_negative_integer < 0:
