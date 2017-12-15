@@ -91,5 +91,5 @@ def format_variables_as_shell_script(d):
     for k, v in d.items():
         if v is None:
             v = ''
-        lines.append('%s=%s' % (k.upper(), v))
+        lines.append('%s="%s"' % (k.upper(), v))
     return '\n'.join(lines)
