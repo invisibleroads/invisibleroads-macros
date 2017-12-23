@@ -1,8 +1,10 @@
 import attr
 import datetime
+import os
 import re
 import shlex
 import simplejson as json
+import stat
 from six import string_types
 from six.moves.urllib.parse import urlencode as format_query
 from subprocess import CalledProcessError, Popen, check_output, PIPE, STDOUT
@@ -93,3 +95,10 @@ def format_variables_as_shell_script(d):
             v = ''
         lines.append('%s="%s"' % (k.upper(), v))
     return '\n'.join(lines)
+
+
+def make_executable(path):
+    # https://stackoverflow.com/a/12792002/192092
+    x_stat = os.stat(path)
+    os.chmod(path, x_stat.st_mode | stat.S_IEXEC)
+    return path

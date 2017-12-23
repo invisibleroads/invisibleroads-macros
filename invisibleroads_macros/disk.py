@@ -173,7 +173,7 @@ def resolve_relative_path(relative_path, folder):
     relative_path = relpath(join(folder, expanduser(relative_path)), folder)
     if relative_path.startswith('.'):
         raise IOError(BAD_RELATIVE_PATH)
-    return join(folder, relative_path)
+    return full_path
 
 
 def compress(source_folder, target_path=None, excludes=None):
