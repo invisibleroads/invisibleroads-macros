@@ -170,10 +170,11 @@ def find_paths(folder, include_expression='*', exclude_expression=''):
 
 
 def resolve_relative_path(relative_path, folder):
-    relative_path = relpath(join(folder, expanduser(relative_path)), folder)
+    absolute_path = join(folder, expanduser(relative_path))
+    relative_path = relpath(absolute_path, folder)
     if relative_path.startswith('.'):
         raise IOError(BAD_RELATIVE_PATH)
-    return full_path
+    return absolute_path
 
 
 def compress(source_folder, target_path=None, excludes=None):
