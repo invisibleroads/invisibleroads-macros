@@ -1,24 +1,33 @@
+from invisibleroads_macros.disk import (
+    TemporaryFolder, compress, get_absolute_path, get_file_basename,
+    get_file_extension, get_relative_path, make_folder, uncompress)
+from invisibleroads_macros.exceptions import BadArchive, BadPath
 from os import symlink
-from os.path import dirname, expanduser, isdir, islink, join
+from os.path import dirname, expanduser, isdir, islink, join, relpath
 from pytest import fixture, raises
 
-from invisibleroads_macros.disk import (
-    TemporaryFolder, compress, get_file_basename, get_file_extension,
-    make_folder, uncompress)
-from invisibleroads_macros.exceptions import BadArchive
+from conftest import FOLDER
 
 
 class CompressionMixin(object):
 
     def test_include_external_link(self, sandbox, target_folder):
         source_folder = sandbox.source_folder
-        target_path = compress(source_folder, source_folder + self.extension)
+        target_path = source_folder + self.extension
+        with raises(IOError):
+            compress(source_folder, target_path)
+            target_folder = uncompress(target_path, target_folder)
+            assert_archive_contents(target_folder, sandbox)
+        target_path = compress(source_folder, target_path, [
+            sandbox.external_folder])
         target_folder = uncompress(target_path, target_folder)
         assert_archive_contents(target_folder, sandbox)
 
     def test_resolve_source_folder_link(self, sandbox, target_folder):
         source_folder = sandbox.source_folder_link_path
-        target_path = compress(source_folder, source_folder + self.extension)
+        target_path = source_folder + self.extension
+        compress(source_folder, target_path, [
+            sandbox.external_folder])
         target_folder = uncompress(target_path, target_folder)
         assert_archive_contents(target_folder, sandbox)
 
@@ -46,7 +55,7 @@ class TestTemporaryFolder(object):
             assert str(temporary_folder).startswith('/tmp/')
 
 
-class O(object):
+class Object(object):
     pass
 
 
@@ -58,12 +67,40 @@ def test_get_file_extension():
     assert get_file_extension('file.txt.zip') == '.txt.zip'
 
 
+def test_get_relative_path():
+    x = 'file.txt'
+    f1 = join(FOLDER, 'folder1')
+    f2 = join(FOLDER, 'folder2')
+    assert get_relative_path(x, f1) == x
+    assert get_relative_path(join(f1, x), f1) == x
+    # Do not allow paths whose links resolve outside the folder
+    with raises(BadPath):
+        get_relative_path(x, f2)
+    # Allow paths if they are in specified external folders
+    assert get_relative_path(x, f2, [f1]) == x
+    assert get_relative_path(join(f1, x), f2, [f1]) == relpath(join(f1, x), f2)
+
+
+def test_get_absolute_path():
+    x = 'file.txt'
+    f1 = join(FOLDER, 'folder1')
+    f2 = join(FOLDER, 'folder2')
+    assert get_absolute_path(x, f1) == join(f1, x)
+    assert get_absolute_path(join(f1, x), f1) == join(f1, x)
+    # Do not allow paths whose links resolve outside the folder
+    with raises(BadPath):
+        get_absolute_path(x, f2)
+    # Allow paths if they are in allowed folders
+    assert get_absolute_path(x, f2, [f1]) == join(f2, x)
+    assert get_absolute_path(join(f1, x), f2, [f1]) == join(f1, x)
+
+
 @fixture
 def sandbox(tmpdir):
     """
     source_folder_link -> source_folder
     source_folder
-        external_file_link -> external_file
+        external_file_link -> external_folder_file
         external_folder_link -> external_folder
         internal_file_link -> internal_file
         internal_file
@@ -74,34 +111,35 @@ def sandbox(tmpdir):
         .hidden_file
         .hidden_folder
             hidden_folder_file
-    external_file
     external_folder
         external_folder_file
     """
-    o, temporary_folder = O(), str(tmpdir)
+    o, temporary_folder = Object(), str(tmpdir)
+    o.parent_folder = temporary_folder
     o.source_folder = make_folder(join(temporary_folder, 'source_folder'))
-    o.external_file_path = join(temporary_folder, 'external_file')
     o.internal_file_path = join(o.source_folder, 'internal_file')
-    open(o.external_file_path, 'wt').write('external_file')
     open(o.internal_file_path, 'wt').write('internal_file')
-
-    o.external_file_link_path = join(o.source_folder, 'external_file_link')
-    o.internal_file_link_path = join(o.source_folder, 'internal_file_link')
-    symlink(o.external_file_path, o.external_file_link_path)
-    symlink(o.internal_file_path, o.internal_file_link_path)
 
     o.external_folder = make_folder(join(temporary_folder, 'external_folder'))
     o.external_folder_file_path = join(
         o.external_folder, 'external_folder_file')
-    o.external_folder_link_path = join(o.source_folder, 'external_folder_link')
     open(o.external_folder_file_path, 'wt').write('external_folder_file')
-    symlink(o.external_folder, o.external_folder_link_path)
 
     o.internal_folder = make_folder(join(o.source_folder, 'internal_folder'))
     o.internal_folder_file_path = join(
         o.internal_folder, 'internal_folder_file')
-    o.internal_folder_link_path = join(o.source_folder, 'internal_folder_link')
     open(o.internal_folder_file_path, 'wt').write('internal_folder_file')
+
+    o.internal_file_link_path = join(o.source_folder, 'internal_file_link')
+    symlink(o.internal_file_path, o.internal_file_link_path)
+
+    o.external_file_link_path = join(o.source_folder, 'external_file_link')
+    symlink(o.external_folder_file_path, o.external_file_link_path)
+
+    o.external_folder_link_path = join(o.source_folder, 'external_folder_link')
+    symlink(o.external_folder, o.external_folder_link_path)
+
+    o.internal_folder_link_path = join(o.source_folder, 'internal_folder_link')
     symlink(o.internal_folder, o.internal_folder_link_path)
 
     o.empty_folder = make_folder(join(o.source_folder, 'empty_folder'))
@@ -129,7 +167,7 @@ def assert_archive_contents(target_folder, sandbox):
     assert not islink(dirname(target_path))
     # Include external file link as file
     target_path = join(target_folder, 'external_file_link')
-    assert_file_contents(target_path, sandbox.external_file_path)
+    assert_file_contents(target_path, sandbox.external_folder_file_path)
     assert not islink(target_path)
     # Include internal file
     target_path = join(target_folder, 'internal_file')

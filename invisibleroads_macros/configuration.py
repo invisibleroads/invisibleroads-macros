@@ -7,11 +7,12 @@ import shlex
 from argparse import ArgumentError, ArgumentParser
 from collections import OrderedDict
 from importlib import import_module
-from os.path import dirname, expanduser, isabs, join, relpath
+from os.path import dirname
 from six import string_types
 
 from .calculator import get_int
-from .disk import expand_path, resolve_relative_path
+from .disk import expand_path, get_absolute_path, get_relative_path
+from .exceptions import BadPath
 from .iterable import merge_dictionaries
 from .log import format_summary, get_log
 
@@ -81,12 +82,13 @@ def save_settings(
     return configuration_path
 
 
-def load_relative_settings(configuration_path, section_name):
+def load_relative_settings(
+        configuration_path, section_name, external_folders=None):
     settings = OrderedDict()
     configuration_folder = dirname(expand_path(configuration_path))
     for k, v in load_settings(configuration_path, section_name).items():
         if k.endswith('_path') or k.endswith('_folder'):
-            v = resolve_relative_path(expanduser(v), configuration_folder)
+            v = get_absolute_path(v, configuration_folder, external_folders)
         settings[k] = v
     return settings
 
@@ -147,42 +149,34 @@ def split_arguments(command_string):
     return [x.strip() for x in xs]
 
 
-def make_absolute_paths(d, folder):
+def make_absolute_paths(d, folder, external_folders=False, with_force=True):
     d = OrderedDict(d)
     for k, v in d.items():
         if hasattr(v, 'items'):
             v = make_absolute_paths(v, folder)
         elif is_path_key(k) and v:
-            v = expanduser(v)
-            if not isabs(v):
-                v = join(folder, v)
+            try:
+                v = get_absolute_path(v, folder, external_folders)
+            except BadPath:
+                if with_force:
+                    v = ''
         d[k] = v
     return d
 
 
-def make_relative_paths(d, folder, with_force=True):
+def make_relative_paths(d, folder, external_folders=None, with_force=True):
     d = OrderedDict(d)
     for k, v in d.items():
         if hasattr(v, 'items'):
-            v = make_relative_paths(v, folder, with_force)
+            v = make_relative_paths(v, folder)
         elif is_path_key(k):
-            v = make_relative_path_safely(v, folder, with_force)
+            try:
+                v = get_relative_path(v, folder, external_folders)
+            except BadPath:
+                if with_force:
+                    v = ''
         d[k] = v
     return d
-
-
-def make_relative_path_safely(path, folder, with_force=True):
-    expanded_path = expanduser(path)
-    if not isabs(expanded_path):
-        return expanded_path
-    expanded_folder = expanduser(folder)
-    relative_path = relpath(expanded_path, expanded_folder)
-    if relative_path.startswith('..'):
-        if with_force:
-            return ''
-        else:
-            return expanded_path
-    return relative_path
 
 
 def is_path_key(k):

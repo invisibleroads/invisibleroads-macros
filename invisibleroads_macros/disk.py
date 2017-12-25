@@ -13,12 +13,11 @@ from os.path import (
 from shutil import copy2, copyfileobj, move, rmtree
 from tempfile import _RandomNameSequence, mkdtemp, mkstemp
 
-from .exceptions import BadArchive
+from .exceptions import BadArchive, BadPath
 from .security import make_random_string, ALPHABET
 from .text import unicode_safely
 
 
-BAD_RELATIVE_PATH = 'relative path must be inside folder'
 COMMAND_LINE_HOME = '%UserProfile%' if os.name == 'nt' else '~'
 HOME_FOLDER = expanduser('~')
 _MINIMUM_UNIQUE_LENGTH = 10
@@ -169,36 +168,59 @@ def find_paths(folder, include_expression='*', exclude_expression=''):
         if not fnmatch.fnmatch(file_name, exclude_expression)]
 
 
-def resolve_relative_path(relative_path, folder):
-    absolute_path = join(folder, expanduser(relative_path))
-    relative_path = relpath(absolute_path, folder)
-    if relative_path.startswith('.'):
-        raise IOError(BAD_RELATIVE_PATH)
+def get_relative_path(
+        absolute_or_folder_relative_path, folder, external_folders=None):
+    expanded_folder = expanduser(folder)
+    absolute_folder = abspath(expanded_folder)
+    absolute_path = get_absolute_path(
+        absolute_or_folder_relative_path, folder, external_folders)
+    return relpath(absolute_path, absolute_folder)
+
+
+def get_absolute_path(
+        absolute_or_folder_relative_path, folder, external_folders=None):
+    expanded_path = expanduser(absolute_or_folder_relative_path)
+    expanded_folder = expanduser(folder)
+    absolute_path = abspath(join(expanded_folder, expanded_path))
+    absolute_folder = abspath(expanded_folder)
+    real_path = realpath(absolute_path)
+    real_folder = realpath(absolute_folder)
+    for external_folder in external_folders or []:
+        external_folder = realpath(expanduser(external_folder))
+        if real_path.startswith(external_folder):
+            break
+    else:
+        if relpath(real_path, real_folder).startswith('..'):
+            raise BadPath
     return absolute_path
 
 
-def compress(source_folder, target_path=None, excludes=None):
+def compress(
+        source_folder, target_path=None, external_folders=None, excludes=None):
     'Compress folder; specify archive extension (.tar.gz .zip) in target_path'
     if not target_path:
         target_path = source_folder + '.tar.gz'
     if target_path.endswith('.tar.gz'):
-        compress_tar_gz(source_folder, target_path, excludes)
+        compress_tar_gz(source_folder, target_path, external_folders, excludes)
     else:
-        compress_zip(source_folder, target_path, excludes)
+        compress_zip(source_folder, target_path, external_folders, excludes)
     return target_path
 
 
-def compress_tar_gz(source_folder, target_path=None, excludes=None):
+def compress_tar_gz(
+        source_folder, target_path=None, external_folders=None, excludes=None):
     'Compress folder as tar archive'
     if not target_path:
         target_path = source_folder + '.tar.gz'
     source_folder = realpath(source_folder)
     with tarfile.open(target_path, 'w:gz', dereference=True) as target_file:
-        _process_folder(source_folder, excludes, target_file.add)
+        _process_folder(
+            source_folder, excludes, external_folders, target_file.add)
     return target_path
 
 
-def compress_zip(source_folder, target_path=None, excludes=None):
+def compress_zip(
+        source_folder, target_path=None, external_folders=None, excludes=None):
     'Compress folder as zip archive'
     if not target_path:
         target_path = source_folder + '.zip'
@@ -206,7 +228,8 @@ def compress_zip(source_folder, target_path=None, excludes=None):
     with zipfile.ZipFile(
         target_path, 'w', zipfile.ZIP_DEFLATED, allowZip64=True,
     ) as target_file:
-        _process_folder(source_folder, excludes, target_file.write)
+        _process_folder(
+            source_folder, excludes, external_folders, target_file.write)
     return target_path
 
 
@@ -258,11 +281,10 @@ def cd(target_folder):
 
 
 def make_enumerated_folder_for(script_path, first_index=1):
-    package_name = get_file_basename(script_path)
-    if 'run' == package_name:
-        package_folder = get_package_folder(script_path)
-        package_name = get_file_basename(package_folder)
-    return make_enumerated_folder(join(sep, 'tmp', package_name), first_index)
+    script_name = get_file_basename(script_path)
+    if 'run' == script_name:
+        script_name = get_file_basename(dirname(script_path))
+    return make_enumerated_folder(join(sep, 'tmp', script_name), first_index)
 
 
 def make_enumerated_folder(base_folder, first_index=1):
@@ -281,10 +303,6 @@ def make_enumerated_folder(base_folder, first_index=1):
             target_index += 1
             target_folder = suggest_folder(target_index)
     return target_folder
-
-
-def get_package_folder(script_path):
-    return dirname((script_path))
 
 
 def change_owner_and_group_recursively(target_folder, target_username):
@@ -389,13 +407,17 @@ def _prepare_suffix(suffix, length):
     return make_random_string(length - _MINIMUM_UNIQUE_LENGTH) + suffix
 
 
-def _process_folder(source_folder, excludes, write_path):
+def _process_folder(source_folder, excludes, external_folders, write_path):
     for root_folder, folders, names in walk(source_folder, followlinks=True):
         for source_name in folders + names:
             if has_name_match(source_name, excludes):
                 continue
             source_path = join(root_folder, source_name)
-            target_path = relpath(source_path, source_folder)
+            try:
+                target_path = get_relative_path(
+                    source_path, source_folder, external_folders)
+            except BadPath:
+                continue
             write_path(realpath(source_path), target_path)
 
 
