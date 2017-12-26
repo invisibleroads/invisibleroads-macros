@@ -64,9 +64,9 @@ class RawCaseSensitiveConfigParser(configparser.RawConfigParser):
 def set_default(settings, key, default=None, parse=None):
     value = settings.get(key, default)
     if key not in settings:
-        L.warn('using default %s = %s' % (key, value))
+        L.warning('using default %s = %s' % (key, value))
     elif value in ('', None):
-        L.warn('missing %s' % key)
+        L.warning('missing %s' % key)
     elif parse:
         value = parse(value)
     settings[key] = value
