@@ -7,14 +7,14 @@ import shlex
 from argparse import ArgumentError, ArgumentParser
 from collections import OrderedDict
 from importlib import import_module
-from os.path import dirname
+from os.path import dirname, expanduser, realpath
 from six import string_types
 
 from .calculator import get_int
 from .disk import expand_path, get_absolute_path, get_relative_path
 from .exceptions import BadPath
 from .iterable import merge_dictionaries
-from .log import format_summary, get_log
+from .log import format_path, format_summary, get_log
 
 
 L = get_log(__name__)
@@ -149,32 +149,32 @@ def split_arguments(command_string):
     return [x.strip() for x in xs]
 
 
-def make_absolute_paths(d, folder, external_folders=False, with_force=True):
+def make_absolute_paths(d, folder, external_folders=False):
     d = OrderedDict(d)
     for k, v in d.items():
         if hasattr(v, 'items'):
-            v = make_absolute_paths(v, folder)
+            v = make_absolute_paths(v, folder, external_folders)
         elif is_path_key(k) and v:
             try:
                 v = get_absolute_path(v, folder, external_folders)
             except BadPath:
-                if with_force:
-                    v = ''
+                _log_bad_path(v)
+                v = ''
         d[k] = v
     return d
 
 
-def make_relative_paths(d, folder, external_folders=None, with_force=True):
+def make_relative_paths(d, folder, external_folders=None):
     d = OrderedDict(d)
     for k, v in d.items():
         if hasattr(v, 'items'):
-            v = make_relative_paths(v, folder)
-        elif is_path_key(k):
+            v = make_relative_paths(v, folder, external_folders)
+        elif is_path_key(k) and v:
             try:
                 v = get_relative_path(v, folder, external_folders)
             except BadPath:
-                if with_force:
-                    v = ''
+                _log_bad_path(v)
+                v = ''
         d[k] = v
     return d
 
@@ -254,3 +254,10 @@ def parse_second_count(x):
     elif x_unit == 'm':
         x_count *= 60
     return x_count
+
+
+def _log_bad_path(path):
+    real_path = realpath(expanduser(path))
+    L.warning('bad path ignored (%s -> %s)' % (
+        format_path(path),
+        format_path(real_path)))

@@ -170,6 +170,8 @@ def find_paths(folder, include_expression='*', exclude_expression=''):
 
 def get_relative_path(
         absolute_or_folder_relative_path, folder, external_folders=None):
+    if not absolute_or_folder_relative_path:
+        return absolute_or_folder_relative_path
     expanded_folder = expanduser(folder)
     absolute_folder = abspath(expanded_folder)
     absolute_path = get_absolute_path(
@@ -179,9 +181,13 @@ def get_relative_path(
 
 def get_absolute_path(
         absolute_or_folder_relative_path, folder, external_folders=None):
+    if not absolute_or_folder_relative_path:
+        return absolute_or_folder_relative_path
     expanded_path = expanduser(absolute_or_folder_relative_path)
     expanded_folder = expanduser(folder)
     absolute_path = abspath(join(expanded_folder, expanded_path))
+    if external_folders == '*':
+        return absolute_path
     absolute_folder = abspath(expanded_folder)
     real_path = realpath(absolute_path)
     real_folder = realpath(absolute_folder)

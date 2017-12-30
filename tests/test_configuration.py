@@ -6,21 +6,14 @@ from pytest import raises
 
 def test_make_relative_path():
     assert make_relative_paths({
+        'empty_path': '',
         'a_path': 'x',
         'b_path': '/var/x',
         'c_path': '/tmp/x',
     }, '/tmp') == {
+        'empty_path': '',
         'a_path': 'x',
         'b_path': '',
-        'c_path': 'x',
-    }
-    assert make_relative_paths({
-        'a_path': 'x',
-        'b_path': '/var/x',
-        'c_path': '/tmp/x',
-    }, '/tmp', with_force=False) == {
-        'a_path': 'x',
-        'b_path': '/var/x',
         'c_path': 'x',
     }
 
