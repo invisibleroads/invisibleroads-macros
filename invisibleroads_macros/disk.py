@@ -169,18 +169,21 @@ def find_paths(folder, include_expression='*', exclude_expression=''):
 
 
 def get_relative_path(
-        absolute_or_folder_relative_path, folder, external_folders=None):
+        absolute_or_folder_relative_path, folder, external_folders=None,
+        resolve_links=True):
     if not absolute_or_folder_relative_path:
         return absolute_or_folder_relative_path
     expanded_folder = expanduser(folder)
     absolute_folder = abspath(expanded_folder)
     absolute_path = get_absolute_path(
-        absolute_or_folder_relative_path, folder, external_folders)
+        absolute_or_folder_relative_path, folder, external_folders,
+        resolve_links)
     return relpath(absolute_path, absolute_folder)
 
 
 def get_absolute_path(
-        absolute_or_folder_relative_path, folder, external_folders=None):
+        absolute_or_folder_relative_path, folder, external_folders=None,
+        resolve_links=True):
     if not absolute_or_folder_relative_path:
         return absolute_or_folder_relative_path
     expanded_path = expanduser(absolute_or_folder_relative_path)
@@ -189,10 +192,11 @@ def get_absolute_path(
     if external_folders == '*':
         return absolute_path
     absolute_folder = abspath(expanded_folder)
-    real_path = realpath(absolute_path)
-    real_folder = realpath(absolute_folder)
+    get_path = realpath if resolve_links else lambda x: x
+    real_path = get_path(absolute_path)
+    real_folder = get_path(absolute_folder)
     for external_folder in external_folders or []:
-        external_folder = realpath(expanduser(external_folder))
+        external_folder = get_path(expanduser(external_folder))
         if real_path.startswith(external_folder):
             break
     else:
