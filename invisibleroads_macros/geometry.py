@@ -1,16 +1,19 @@
-from copy import copy
-
-
 def transform_geometries(geometries, f):
     transformed_geometries = []
-    for geometry in geometries:
-        if hasattr(geometry, 'geoms'):
-            transformed_geometry = geometry.__class__(transform_geometries(
-                geometry.geoms, f))
+
+    def transform_coords(coords):
+        return [f(xyz) for xyz in coords]
+
+    for x in geometries:
+        GeometryClass = x.__class__
+        if hasattr(x, 'geoms'):
+            y = GeometryClass(transform_geometries(x.geoms, f))
+        elif hasattr(x, 'exterior'):
+            y = GeometryClass(transform_coords(x.exterior.coords), [
+                transform_coords(i.coords) for i in x.interiors])
         else:
-            transformed_geometry = copy(geometry)
-            transformed_geometry.coords = [f(xyz) for xyz in geometry.coords]
-        transformed_geometries.append(transformed_geometry)
+            y = GeometryClass(transform_coords(x.coords))
+        transformed_geometries.append(y)
     return transformed_geometries
 
 
