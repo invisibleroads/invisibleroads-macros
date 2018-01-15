@@ -201,7 +201,7 @@ def get_absolute_path(
             break
     else:
         if relpath(real_path, real_folder).startswith('..'):
-            raise BadPath
+            raise BadPath('%s is not in %s' % (real_path, real_folder))
     return absolute_path
 
 
