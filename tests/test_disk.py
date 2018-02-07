@@ -1,5 +1,5 @@
 from invisibleroads_macros.disk import (
-    TemporaryFolder, compress, get_absolute_path, get_file_basename,
+    TemporaryFolder, compress, get_absolute_path, get_file_stem,
     get_file_extension, get_relative_path, make_folder, uncompress)
 from invisibleroads_macros.exceptions import BadArchive, BadPath
 from os import symlink
@@ -38,8 +38,12 @@ class CompressionMixin(object):
             uncompress(target_path)
 
 
-class TestCompressTar(CompressionMixin):
+class TestCompressTarGz(CompressionMixin):
     extension = '.tar.gz'
+
+
+class TestCompressTarXz(CompressionMixin):
+    extension = '.tar.xz'
 
 
 class TestCompressZip(CompressionMixin):
@@ -59,8 +63,8 @@ class Object(object):
     pass
 
 
-def test_get_file_basename():
-    assert get_file_basename('file.txt.zip') == 'file'
+def test_get_file_stem():
+    assert get_file_stem('file.txt.zip') == 'file'
 
 
 def test_get_file_extension():

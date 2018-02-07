@@ -25,6 +25,13 @@ from .disk import COMMAND_LINE_HOME
 INDENT = ' ' * 2
 
 
+class LogDictionary(dict):
+
+    def __setitem__(self, k, v):
+        super(LogDictionary, self).__setitem__(k, v)
+        print('%s = %s' % (k, v))
+
+
 def get_log(name):
     log = getLogger(name)
     log.addHandler(NullHandler())

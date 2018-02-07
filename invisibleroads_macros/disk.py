@@ -13,7 +13,7 @@ from os.path import (
 from shutil import copy2, copyfileobj, move, rmtree
 from tempfile import _RandomNameSequence, mkdtemp, mkstemp
 
-from .exceptions import BadArchive, BadPath
+from .exceptions import BadArchive, BadFormat, BadPath
 from .security import make_random_string, ALPHABET
 from .text import unicode_safely
 
@@ -207,25 +207,30 @@ def get_absolute_path(
 
 def compress(
         source_folder, target_path=None, external_folders=None, excludes=None):
-    'Compress folder; specify archive extension (.tar.gz .zip) in target_path'
+    """Compress folder.
+    Specify archive extension (.tar.gz .tar.xz .zip) in target_path."""
     if not target_path:
         target_path = source_folder + '.tar.gz'
-    if target_path.endswith('.tar.gz'):
-        compress_tar_gz(source_folder, target_path, external_folders, excludes)
-    else:
+    if target_path.endswith('.tar.gz') or target_path.endswith('.tar.xz'):
+        compress_tar(source_folder, target_path, external_folders, excludes)
+    elif target_path.endswith('.zip'):
         compress_zip(source_folder, target_path, external_folders, excludes)
+    else:
+        raise BadFormat('compression format not supported (%s)' % target_path)
     return target_path
 
 
-def compress_tar_gz(
+def compress_tar(
         source_folder, target_path=None, external_folders=None, excludes=None):
     'Compress folder as tar archive'
     if not target_path:
         target_path = source_folder + '.tar.gz'
-    source_folder = realpath(source_folder)
-    with tarfile.open(target_path, 'w:gz', dereference=True) as target_file:
-        _process_folder(
-            source_folder, excludes, external_folders, target_file.add)
+    compression_format = 'xz' if target_path.endswith('.xz') else 'gz'
+    folder = realpath(source_folder)
+    with tarfile.open(
+        target_path, 'w:' + compression_format, dereference=True,
+    ) as target_file:
+        _process_folder(folder, excludes, external_folders, target_file.add)
     return target_path
 
 
@@ -244,20 +249,22 @@ def compress_zip(
 
 
 def uncompress(source_path, target_folder=None):
-    if source_path.endswith('.tar.gz'):
+    if source_path.endswith('.tar.gz') or source_path.endswith('.tar.xz'):
+        compression_format = 'xz' if source_path.endswith('.xz') else 'gz'
         try:
-            source_file = tarfile.open(source_path, 'r:gz')
+            source_file = tarfile.open(source_path, 'r:' + compression_format)
         except tarfile.ReadError:
-            raise BadArchive(
-                'could not open archive (source_path=%s)' % source_path)
-        default_target_folder = re.sub(r'\.tar.gz$', '', source_path)
-    else:
+            raise BadArchive('archive unreadable (%s)' % source_path)
+        extension_expression = r'\.tar\.%s$' % compression_format
+    elif source_path.endswith('.zip'):
         try:
             source_file = zipfile.ZipFile(source_path, 'r')
         except zipfile.BadZipfile:
-            raise BadArchive(
-                'could not open archive (source_path=%s)' % source_path)
-        default_target_folder = re.sub(r'\.zip$', '', source_path)
+            raise BadArchive('archive unreadable (%s)' % source_path)
+        extension_expression = r'\.zip$'
+    else:
+        raise BadFormat('compression format not supported (%s)' % source_path)
+    default_target_folder = re.sub(extension_expression, '', source_path)
     target_folder = target_folder or default_target_folder
     source_file.extractall(target_folder)
     source_file.close()
@@ -291,9 +298,9 @@ def cd(target_folder):
 
 
 def make_enumerated_folder_for(script_path, first_index=1):
-    script_name = get_file_basename(script_path)
+    script_name = get_file_stem(script_path)
     if 'run' == script_name:
-        script_name = get_file_basename(dirname(script_path))
+        script_name = get_file_stem(dirname(script_path))
     return make_enumerated_folder(join(sep, 'tmp', script_name), first_index)
 
 
@@ -336,7 +343,7 @@ def replace_file_extension(path, extension):
     return join(parent_folder, file_basename + extension)
 
 
-def get_file_basename(path):
+def get_file_stem(path):
     'Return file name without extension (x/y/z/file.txt.zip -> file)'
     return basename(path).split('.', 1)[0]
 
