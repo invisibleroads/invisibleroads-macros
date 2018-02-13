@@ -1,6 +1,7 @@
-import random
 from collections import Callable, MutableSet, OrderedDict, defaultdict
 from copy import deepcopy
+
+from .security import RANDOM
 
 
 class OrderedDefaultDict(OrderedDict):
@@ -163,5 +164,5 @@ def sort_dictionary(value_by_key, sorted_keys):
 
 def shuffled(items):
     items = list(items)
-    random.shuffle(items)
+    RANDOM.shuffle(items)
     return items

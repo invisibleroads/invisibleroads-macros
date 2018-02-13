@@ -1,9 +1,10 @@
 from invisibleroads_macros.disk import (
-    TemporaryFolder, compress, get_absolute_path, get_file_stem,
-    get_file_extension, get_relative_path, make_folder, uncompress)
+    TemporaryStorage, compress, get_absolute_path, get_file_stem,
+    get_file_extension, get_relative_path, make_folder, uncompress,
+    TEMPORARY_FOLDER)
 from invisibleroads_macros.exceptions import BadArchive, BadPath
 from os import symlink
-from os.path import dirname, expanduser, isdir, islink, join, relpath
+from os.path import dirname, isdir, islink, join, relpath
 from pytest import fixture, raises
 
 from conftest import FOLDER
@@ -50,13 +51,13 @@ class TestCompressZip(CompressionMixin):
     extension = '.zip'
 
 
-class TestTemporaryFolder(object):
+class TestTemporaryStorage(object):
 
     def test_parent_folder(self):
-        with TemporaryFolder() as temporary_folder:
-            assert str(temporary_folder).startswith(expanduser('~/.tmp/'))
-        with TemporaryFolder('/tmp') as temporary_folder:
-            assert str(temporary_folder).startswith('/tmp/')
+        with TemporaryStorage() as storage:
+            assert storage.folder.startswith(TEMPORARY_FOLDER)
+        with TemporaryStorage('/tmp') as storage:
+            assert storage.folder.startswith('/tmp/')
 
 
 class Object(object):

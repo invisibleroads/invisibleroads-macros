@@ -18,43 +18,25 @@ from .security import make_random_string, ALPHABET
 from .text import unicode_safely
 
 
+ARCHIVE_EXTENSIONS = '.tar.gz', '.tar.xz', '.zip'
 COMMAND_LINE_HOME = '%UserProfile%' if os.name == 'nt' else '~'
 HOME_FOLDER = expanduser('~')
+TEMPORARY_FOLDER = expanduser('~/.tmp')
 _MINIMUM_UNIQUE_LENGTH = 10
 
 
-class TemporaryFolder(object):
+class TemporaryStorage(object):
 
-    def __init__(self, parent_folder=None, suffix='', prefix='tmp'):
+    def __init__(self, parent_folder=None, suffix='', prefix=''):
         if parent_folder is None:
-            parent_folder = make_folder(expanduser('~/.tmp'))
+            parent_folder = make_folder(TEMPORARY_FOLDER)
         self.folder = make_unique_folder(parent_folder, suffix, prefix)
-
-    def __str__(self):
-        return self.folder
 
     def __enter__(self):
         return self
 
     def __exit__(self, exception_type, exception_value, exception_traceback):
         remove_safely(self.folder)
-
-
-class TemporaryPath(object):
-
-    def __init__(self, parent_folder=None, suffix='', prefix='tmp'):
-        if parent_folder is None:
-            parent_folder = make_folder(expanduser('~/.tmp'))
-        self.path = make_unique_path(parent_folder, suffix, prefix)
-
-    def __str__(self):
-        return self.path
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, exception_type, exception_value, exception_traceback):
-        remove_safely(self.path)
 
 
 class _CustomRandomNameSequence(_RandomNameSequence):
@@ -136,16 +118,16 @@ def move_folder(target_folder, source_folder):
     return target_folder
 
 
-def remove_safely(path):
-    'Make sure a file or folder does not exist without raising an exception'
+def remove_safely(folder_or_path):
+    'Make sure a path or folder does not exist without raising an exception'
     try:
-        rmtree(path)
+        rmtree(folder_or_path)
     except OSError:
         try:
-            remove(path)
+            remove(folder_or_path)
         except OSError:
             pass
-    return path
+    return folder_or_path
 
 
 def find_path(folder, file_name):
@@ -203,6 +185,13 @@ def get_absolute_path(
         if relpath(real_path, real_folder).startswith('..'):
             raise BadPath('%s is not in %s' % (real_path, real_folder))
     return absolute_path
+
+
+def has_archive_extension(path):
+    for extension in ARCHIVE_EXTENSIONS:
+        if path.endswith(extension):
+            return True
+    return False
 
 
 def compress(
