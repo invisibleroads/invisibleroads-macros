@@ -21,8 +21,8 @@ def flip_xy(xyz):
     'Flip x and y coordinates whether or not there is a z-coordinate'
     xyz = list(xyz)  # Preserve original
     xyz[0], xyz[1] = xyz[1], xyz[0]
-    return list(xyz)
+    return tuple(xyz)
 
 
 def drop_z(xyz):
-    return list(xyz[:2])
+    return tuple(xyz[:2])

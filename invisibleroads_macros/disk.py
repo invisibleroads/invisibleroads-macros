@@ -289,7 +289,7 @@ def cd(target_folder):
 def make_enumerated_folder_for(script_path, first_index=1):
     script_name = get_file_stem(script_path)
     if 'run' == script_name:
-        script_name = get_file_stem(dirname(script_path))
+        script_name = get_file_stem(dirname(abspath(script_path)))
     return make_enumerated_folder(join(sep, 'tmp', script_name), first_index)
 
 
