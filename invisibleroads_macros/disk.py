@@ -373,7 +373,15 @@ def copy_path(target_path, source_path):
     return target_path
 
 
-def link_path(target_path, source_path):
+def make_hard_link(target_path, source_path):
+    return link_path(target_path, source_path, 'link')
+
+
+def make_soft_link(target_path, source_path):
+    return link_path(target_path, source_path, 'symlink')
+
+
+def link_path(target_path, source_path, function_name='link'):
     target_path = expanduser(target_path)
     source_path = expanduser(source_path)
     if not exists(source_path):
@@ -382,12 +390,15 @@ def link_path(target_path, source_path):
         return target_path
     if is_x_parent_of_y(target_path, source_path):
         raise ValueError
+    if isdir(source_path):
+        function_name = 'symlink'
     try:
-        from os import symlink  # Undefined in Windows
-    except ImportError:
+        f = getattr(os, function_name)
+    except AttributeError:
+        # Copy because the function is not available in Windows
         return copy_path(target_path, source_path)
     _prepare_path(target_path)
-    symlink(source_path, target_path)
+    f(source_path, target_path)
     return target_path
 
 
