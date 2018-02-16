@@ -374,26 +374,35 @@ def copy_path(target_path, source_path):
 
 
 def make_hard_link(target_path, source_path):
-    return link_path(target_path, source_path, 'link')
-
-
-def make_soft_link(target_path, source_path):
-    return link_path(target_path, source_path, 'symlink')
-
-
-def link_path(target_path, source_path, function_name='link'):
     target_path = expanduser(target_path)
     source_path = expanduser(source_path)
     if not exists(source_path):
         raise IOError('file not found (%s)' % source_path)
-    if are_same_path(target_path, source_path):
+    if isdir(source_path):
+        raise ValueError('link not valid (%s)' % source_path)
+    try:
+        f = os.link
+    except AttributeError:
+        # Copy because the function is not available in Windows
+        return copy_path(target_path, source_path)
+    _prepare_path(target_path)
+    f(source_path, target_path)
+    return target_path
+
+
+def make_soft_link(target_path, source_path):
+    target_path = expanduser(target_path)
+    source_path = expanduser(source_path)
+    if not exists(source_path):
+        raise IOError('file not found (%s)' % source_path)
+    if realpath(target_path) == source_path:
         return target_path
     if is_x_parent_of_y(target_path, source_path):
-        raise ValueError
-    if isdir(source_path):
-        function_name = 'symlink'
+        raise ValueError(
+            'link not valid (target_path="%s", source_path="%s")' % (
+                target_path, source_path))
     try:
-        f = getattr(os, function_name)
+        f = os.symlink
     except AttributeError:
         # Copy because the function is not available in Windows
         return copy_path(target_path, source_path)
