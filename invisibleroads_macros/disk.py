@@ -373,6 +373,13 @@ def copy_path(target_path, source_path):
     return target_path
 
 
+def link_safely(target_folder_or_path, source_folder_or_path):
+    try:
+        return make_hard_link(target_folder_or_path, source_folder_or_path)
+    except (OSError, ValueError):
+        return make_soft_link(target_folder_or_path, source_folder_or_path)
+
+
 def make_hard_link(target_path, source_path):
     target_path = expanduser(target_path)
     source_path = expanduser(source_path)
