@@ -1,4 +1,5 @@
 import re
+import shlex
 import sys
 
 
@@ -37,3 +38,14 @@ def unicode_safely(x):
         return x.decode(sys.getfilesystemencoding())
     except (AttributeError, UnicodeEncodeError):
         return x
+
+
+if sys.version_info[0] < 3:
+
+    def split_shell_command(x):
+        return [_.decode('utf-8') for _ in shlex.split(x.encode('utf-8'))]
+
+else:
+
+    def split_shell_command(x):
+        return shlex.split
