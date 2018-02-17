@@ -48,4 +48,4 @@ if sys.version_info[0] < 3:
 else:
 
     def split_shell_command(x):
-        return shlex.split
+        return shlex.split(x)
