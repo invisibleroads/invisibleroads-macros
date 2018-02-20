@@ -210,5 +210,5 @@ def parse_nested_dictionary(text, is_key=lambda x: True, indent=INDENT):
     return d
 
 
-def log_traceback(log, d=''):
-    log.error(traceback.format_exc() + str(d))
+def log_traceback(log, d=None):
+    log.error(traceback.format_exc() + format_summary(d or {}))
