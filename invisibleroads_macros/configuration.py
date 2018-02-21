@@ -152,7 +152,7 @@ def split_arguments(command_string):
 def make_absolute_paths(d, folder, external_folders=False):
     d = OrderedDict(d)
     for k, v in d.items():
-        if hasattr(v, 'items'):
+        if isinstance(v, dict):
             v = make_absolute_paths(v, folder, external_folders)
         elif is_path_key(k) and v:
             try:
@@ -167,7 +167,7 @@ def make_absolute_paths(d, folder, external_folders=False):
 def make_relative_paths(d, folder, external_folders=None):
     d = OrderedDict(d)
     for k, v in d.items():
-        if hasattr(v, 'items'):
+        if isinstance(v, dict):
             v = make_relative_paths(v, folder, external_folders)
         elif is_path_key(k) and v:
             try:

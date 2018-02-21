@@ -43,7 +43,7 @@ def filter_nested_dictionary(value_by_key, f):
     for k, v in value_by_key.items():
         if f(k):
             continue
-        if hasattr(v, 'items'):
+        if isinstance(v, dict):
             v = filter_nested_dictionary(v, f)
         d[k] = v
     return d
@@ -82,7 +82,7 @@ def format_nested_dictionary(
     parts = []
     for key, value in value_by_key.items():
         left_hand_side = prefix + str(key)
-        if hasattr(value, 'items'):
+        if isinstance(value, dict):
             parts.append(format_nested_dictionary(
                 value, suffix_format_packs, left_hand_side + '.'))
             continue
@@ -150,7 +150,7 @@ def get_nested_dictionary(nested_lists):
 def get_nested_lists(nested_dictionary):
     xs = []
     for k, v in nested_dictionary.items():
-        if hasattr(v, 'items'):
+        if isinstance(v, dict):
             v = get_nested_lists(v)
             k = k + '_'
         xs.append((k, v))

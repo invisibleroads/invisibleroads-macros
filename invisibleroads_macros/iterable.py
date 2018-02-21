@@ -112,7 +112,7 @@ def flatten_dictionaries(dictionary_of_dictionaries):
     'Combined nested dictionary into a simple dictionary'
     d = OrderedDict()
     for outer_k, outer_v in dictionary_of_dictionaries.items():
-        if not hasattr(outer_v, 'items'):
+        if isinstance(outer_v, dict):
             d[outer_k] = outer_v
             continue
         for inner_k, inner_v in flatten_dictionaries(outer_v).items():
