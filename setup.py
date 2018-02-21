@@ -7,7 +7,7 @@ DESCRIPTION = '\n\n'.join(open(join(FOLDER, x)).read().strip() for x in [
     'README.rst', 'CHANGES.rst'])
 setup(
     name='invisibleroads-macros',
-    version='0.9.4.3',
+    version='0.9.4.4',
     description='Shortcut functions',
     long_description=DESCRIPTION,
     classifiers=[
@@ -21,9 +21,7 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     zip_safe=False,
-    setup_requires=[
-        'pytest-runner',
-    ],
+    setup_requires=['pytest-runner'],
     install_requires=[
         'attrs',
         'configparser',
