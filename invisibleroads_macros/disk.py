@@ -80,7 +80,7 @@ def make_unique_path(
 
 def clean_folder(folder):
     'Remove folder contents but keep folder'
-    for x_name in listdir(folder):
+    for x_name in listdir(make_folder(folder)):
         x_path = join(folder, x_name)
         remove_safely(x_path)
     return folder
