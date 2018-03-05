@@ -1,4 +1,3 @@
-from os.path import splitext
 from six.moves.urllib_parse import urlparse as parse_url
 
 
@@ -28,7 +27,7 @@ def normalize_url(x):
     x = x.strip().lower()
     x = x.replace(' ', '-')
     x = x.replace('_', '-')
-    return splitext(x)[0]
+    return x
 
 
 def encode_number(non_negative_integer, alphabet=PRONOUNCEABLE_ALPHABET):
