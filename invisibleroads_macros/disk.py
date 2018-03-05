@@ -332,6 +332,12 @@ def replace_file_extension(path, extension):
     return join(parent_folder, file_basename + extension)
 
 
+def strip_file_extension(path):
+    parent_folder = dirname(path)
+    file_basename = basename(path).split('.', 1)[0]
+    return join(parent_folder, file_basename)
+
+
 def get_file_stem(path):
     'Return file name without extension (x/y/z/file.txt.zip -> file)'
     return basename(path).split('.', 1)[0]
