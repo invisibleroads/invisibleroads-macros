@@ -108,6 +108,11 @@ class OrderedSet(MutableSet):
         return set(self) == set(other)
 
 
+def drop_duplicates(xs):
+    # https://stackoverflow.com/a/39835527/192092
+    return list(OrderedDict.fromkeys(xs))
+
+
 def flatten_dictionaries(dictionary_of_dictionaries):
     'Combined nested dictionary into a simple dictionary'
     d = OrderedDict()
