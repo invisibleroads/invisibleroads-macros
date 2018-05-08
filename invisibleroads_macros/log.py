@@ -176,7 +176,13 @@ def parse_nested_dictionary_from(raw_dictionary, max_depth=float('inf')):
     return value_by_key
 
 
-def parse_nested_dictionary(text, is_key=lambda x: True, indent=INDENT):
+def parse_nested_dictionary(
+        text, is_key=lambda x: True, indent=INDENT, max_depth=float('inf')):
+    raw_dictionary = parse_raw_dictionary(text, is_key, indent)
+    return parse_nested_dictionary_from(raw_dictionary, max_depth)
+
+
+def parse_raw_dictionary(text, is_key=lambda x: True, indent=INDENT):
     raw_dictionary, key = OrderedDict(), None
     for line in text.splitlines():
         if line.startswith(indent):
@@ -195,19 +201,9 @@ def parse_nested_dictionary(text, is_key=lambda x: True, indent=INDENT):
         key = key.strip()
         value = value.strip()
         raw_dictionary[key] = [value]
-    d = OrderedDict()
     for k, v in raw_dictionary.items():
-        this_dictionary = d
-        for key in k.split('.'):
-            key = key.strip()
-            last_dictionary = this_dictionary
-            try:
-                this_dictionary = this_dictionary[key]
-            except KeyError:
-                this_dictionary[key] = {}
-                this_dictionary = this_dictionary[key]
-        last_dictionary[key] = '\n'.join(v).strip()
-    return d
+        raw_dictionary[k] = '\n'.join(v).strip()
+    return raw_dictionary
 
 
 def log_traceback(log, d=None):
