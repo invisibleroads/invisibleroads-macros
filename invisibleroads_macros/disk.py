@@ -49,6 +49,11 @@ class _CustomRandomNameSequence(_RandomNameSequence):
         return ''.join(choose(ALPHABET) for x in range(_MINIMUM_UNIQUE_LENGTH))
 
 
+def prepare_path(path):
+    make_folder(dirname(path))
+    return path
+
+
 def make_folder(folder):
     'Make sure a folder exists without raising an exception'
     try:
