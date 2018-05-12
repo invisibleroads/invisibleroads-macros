@@ -49,11 +49,6 @@ class _CustomRandomNameSequence(_RandomNameSequence):
         return ''.join(choose(ALPHABET) for x in range(_MINIMUM_UNIQUE_LENGTH))
 
 
-def prepare_path(path):
-    make_folder(dirname(path))
-    return path
-
-
 def make_folder(folder):
     'Make sure a folder exists without raising an exception'
     try:
@@ -367,19 +362,19 @@ def load_text(source_path):
 
 
 def copy_text(target_path, source_text):
-    _prepare_path(target_path)
+    prepare_path(target_path)
     codecs.open(target_path, 'w', encoding='utf-8').write(source_text)
     return target_path
 
 
 def copy_file(target_path, source_file):
-    _prepare_path(target_path)
+    prepare_path(target_path)
     copyfileobj(source_file, open(target_path, 'wb'))
     return target_path
 
 
 def copy_path(target_path, source_path):
-    _prepare_path(target_path)
+    prepare_path(target_path)
     copy2(source_path, target_path)
     return target_path
 
@@ -403,7 +398,7 @@ def make_hard_link(target_path, source_path):
     except AttributeError:
         # Copy because the function is not available in Windows
         return copy_path(target_path, source_path)
-    _prepare_path(target_path)
+    prepare_path(target_path)
     f(source_path, target_path)
     return target_path
 
@@ -424,13 +419,13 @@ def make_soft_link(target_path, source_path):
     except AttributeError:
         # Copy because the function is not available in Windows
         return copy_path(target_path, source_path)
-    _prepare_path(target_path)
+    prepare_path(target_path)
     f(source_path, target_path)
     return target_path
 
 
 def move_path(target_path, source_path):
-    _prepare_path(target_path)
+    prepare_path(target_path)
     move(source_path, target_path)
     return target_path
 
@@ -439,7 +434,7 @@ def expand_path(path):
     return abspath(expanduser(path))
 
 
-def _prepare_path(path):
+def prepare_path(path):
     make_folder(dirname(remove_safely(path)))
     return path
 
