@@ -238,6 +238,8 @@ def compress_zip(
 
 
 def uncompress(source_path, target_folder=None):
+    if not exists(source_path):
+        raise IOError('file not found (%s)' % source_path)
     if source_path.endswith('.tar.gz') or source_path.endswith('.tar.xz'):
         compression_format = 'xz' if source_path.endswith('.xz') else 'gz'
         try:
