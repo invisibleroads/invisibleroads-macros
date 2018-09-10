@@ -138,6 +138,14 @@ def get_lists_from_tuples(xs):
     return xs
 
 
+def get_tuples_from_lists(xs):
+    'Convert tuples to lists'
+    # http://stackoverflow.com/a/1014669
+    if isinstance(xs, (list, tuple)):
+        return tuple(map(get_tuples_from_lists, xs))
+    return xs
+
+
 def make_tree():
     return defaultdict(make_tree)
 
