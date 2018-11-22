@@ -3,8 +3,8 @@ import shlex
 import sys
 
 
-WHITESPACE_PATTERN = re.compile(r'\s+', re.MULTILINE)
 PUNCTUATION_PATTERN = re.compile(r'[^a-zA-Z\s]+')
+WHITESPACE_PATTERN = re.compile(r'\s+', re.MULTILINE)
 
 
 def compact_whitespace(string):

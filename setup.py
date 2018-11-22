@@ -7,7 +7,7 @@ DESCRIPTION = '\n\n'.join(open(join(FOLDER, x)).read().strip() for x in [
     'README.rst', 'CHANGES.rst'])
 setup(
     name='invisibleroads-macros',
-    version='0.9.5',
+    version='0.9.5.1',
     description='Shortcut functions',
     long_description=DESCRIPTION,
     classifiers=[
