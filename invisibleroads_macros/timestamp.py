@@ -12,16 +12,3 @@ def get_timestamp(x=None, with_microsecond=False):
         return x.strftime(TIMESTAMP_FORMAT + '-%f')
     else:
         return x.strftime(TIMESTAMP_FORMAT)
-
-
-def parse_timestamp(text):
-    for FORMAT in DATESTAMP_FORMAT, TIMESTAMP_FORMAT:
-        try:
-            return datetime.strptime(text, FORMAT)
-        except ValueError:
-            pass
-    else:
-        raise ValueError
-
-
-format_timestamp = get_timestamp
