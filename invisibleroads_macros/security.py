@@ -1,18 +1,11 @@
-import random
-import string
+from random import SystemRandom
+from string import digits, ascii_letters
 
 
-try:
-    ALPHABET = string.digits + string.letters
-except AttributeError:
-    ALPHABET = string.digits + string.ascii_letters
-RANDOM = random.SystemRandom()
+ALPHABET = digits + ascii_letters
+RANDOM = SystemRandom()
 
 
-def make_random_string(
-        length, with_punctuation=False, with_spaces=False, alphabet=ALPHABET):
-    if with_punctuation:
-        alphabet += string.punctuation
-    if with_spaces:
-        alphabet += ' '
-    return ''.join(RANDOM.choice(alphabet) for x in range(length))
+def make_random_string(length, alphabet=ALPHABET):
+    # Adapted from invisibleroads-macros
+    return ''.join(RANDOM.choice(alphabet) for _ in range(length))
