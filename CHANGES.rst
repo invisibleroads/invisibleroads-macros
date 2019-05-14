@@ -1,3 +1,7 @@
+1.0
+---
+- Remove support for Python 2
+
 0.9
 ---
 - Define link_safely, make_relative_path_safely, make_tree

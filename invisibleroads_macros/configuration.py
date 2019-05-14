@@ -61,7 +61,7 @@ class RawCaseSensitiveConfigParser(configparser.RawConfigParser):
     optionxform = str
 
 
-def set_default(settings, key, default=None, parse=None):
+def set_default(settings, key, default, parse=None):
     value = settings.get(key, default)
     if key not in settings:
         L.warning(f'using default {key} = {value}')
@@ -245,7 +245,7 @@ def parse_second_count(x):
     if not isinstance(x, string_types):
         raise ValueError
     try:
-        x_count, x_unit = re.match('(\d+)([hms])', x.strip()).groups()
+        x_count, x_unit = re.match(r'(\d+)([hms])', x.strip()).groups()
     except AttributeError:
         raise ValueError
     x_count = int(x_count)

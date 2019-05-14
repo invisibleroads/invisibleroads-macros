@@ -1,13 +1,15 @@
-# Python
+# vim
+*.sw[op]
+*~
+# python
 *.egg*
 *.py[co]
 .cache
 .coverage
 .ipynb_checkpoints
 .pytest_cache
+Pipfile*
 __pycache__
+alembic
 build
 dist
-# Vim
-*.sw[op]
-*~

@@ -1,5 +1,5 @@
 from random import SystemRandom
-from string import digits, ascii_letters
+from string import ascii_letters, digits
 
 
 ALPHABET = digits + ascii_letters
