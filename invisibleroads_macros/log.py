@@ -1,12 +1,7 @@
-import re
 import traceback
 from collections import OrderedDict
-from logging import NullHandler, getLogger
-from os.path import expanduser
 from six import string_types
 from sys import stderr
-
-from .disk import COMMAND_LINE_HOME
 
 
 INDENT = ' ' * 2
@@ -17,12 +12,6 @@ class LogDictionary(dict):
     def __setitem__(self, k, v):
         super(LogDictionary, self).__setitem__(k, v)
         print('%s = %s' % (k, v))
-
-
-def get_log(name):
-    log = getLogger(name)
-    log.addHandler(NullHandler())
-    return log
 
 
 def filter_nested_dictionary(value_by_key, f):
@@ -52,58 +41,6 @@ def stylize_dictionary(value_by_key, suffix_format_packs):
                 break
         d[key] = value
     return d
-
-
-def format_summary(value_by_key, suffix_format_packs=None):
-    suffix_format_packs = list(suffix_format_packs or [])
-    suffix_format_packs.extend([
-        ('_folder', format_path),
-        ('_path', format_path),
-    ])
-    return format_nested_dictionary(OrderedDict(
-        value_by_key), suffix_format_packs)
-
-
-def format_nested_dictionary(
-        value_by_key, suffix_format_packs=None, prefix=''):
-    parts = []
-    for key, value in value_by_key.items():
-        left_hand_side = prefix + str(key)
-        if isinstance(value, dict):
-            parts.append(format_nested_dictionary(
-                value, suffix_format_packs, left_hand_side + '.'))
-            continue
-        for suffix, format_value in suffix_format_packs or []:
-            if key.endswith(suffix):
-                parts.append(format_assignment(
-                    left_hand_side, format_value(value)))
-                break
-        else:
-            if not isinstance(value, string_types):
-                value = str(value)
-            if '\n' in value:
-                value = format_indented_block(value)
-            parts.append(format_assignment(
-                left_hand_side, value))
-    return '\n'.join(parts)
-
-
-def format_assignment(left_hand_side, right_hand_side):
-    left_hand_side = left_hand_side.strip()
-    if right_hand_side.startswith('\n'):
-        operator = ' ='
-    else:
-        operator = ' = '
-        right_hand_side = right_hand_side.strip()
-    return left_hand_side + operator + right_hand_side
-
-
-def format_path(x):
-    return re.sub(r'^' + expanduser('~'), COMMAND_LINE_HOME, x)
-
-
-def format_indented_block(x, indent=INDENT):
-    return '\n' + '\n'.join(indent + line for line in x.splitlines())
 
 
 def format_decimal(x, fractional_digit_count=2):

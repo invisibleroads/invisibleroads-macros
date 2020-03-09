@@ -61,18 +61,6 @@ class RawCaseSensitiveConfigParser(configparser.RawConfigParser):
     optionxform = str
 
 
-def set_default(settings, key, default, parse=None):
-    value = settings.get(key, default)
-    if key not in settings:
-        L.warning(f'using default {key} = {value}')
-    elif value in ('', None):
-        L.warning(f'missing {key}')
-    elif parse:
-        value = parse(value)
-    settings[key] = value
-    return value
-
-
 def save_settings(
         configuration_path, settings_by_section_name,
         suffix_format_packs=None):

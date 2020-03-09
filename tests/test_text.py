@@ -1,10 +1,6 @@
 from invisibleroads_macros.text import (
-    compact_whitespace, has_whitespace, parse_words, cut_and_strip,
+    has_whitespace, parse_words, cut_and_strip,
     remove_punctuation, strip_whitespace)
-
-
-def test_compact_whitespace():
-    assert compact_whitespace('  x  y  z  ') == 'x y z'
 
 
 def test_cut_and_strip():

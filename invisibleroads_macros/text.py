@@ -4,11 +4,6 @@ import sys
 
 
 PUNCTUATION_PATTERN = re.compile(r'[^a-zA-Z\s]+')
-WHITESPACE_PATTERN = re.compile(r'\s+', re.MULTILINE)
-
-
-def compact_whitespace(string):
-    return WHITESPACE_PATTERN.sub(' ', string).strip()
 
 
 def cut_and_strip(x, separator):
@@ -40,12 +35,5 @@ def unicode_safely(x):
         return x
 
 
-if sys.version_info[0] < 3:
-
-    def split_shell_command(x):
-        return [_.decode('utf-8') for _ in shlex.split(x.encode('utf-8'))]
-
-else:
-
-    def split_shell_command(x):
-        return shlex.split(x)
+def split_shell_command(x):
+    return shlex.split(x)
