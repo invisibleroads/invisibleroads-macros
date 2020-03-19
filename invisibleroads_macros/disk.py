@@ -271,24 +271,6 @@ def make_enumerated_folder_for(script_path, first_index=1):
     return make_enumerated_folder(join(sep, 'tmp', script_name), first_index)
 
 
-def make_enumerated_folder(base_folder, first_index=1):
-    'Make a unique enumerated folder in base_folder'
-
-    def suggest_folder(index):
-        return join(base_folder, str(index))
-
-    target_index = first_index
-    target_folder = suggest_folder(target_index)
-    while True:
-        try:
-            makedirs(target_folder)
-            break
-        except OSError:
-            target_index += 1
-            target_folder = suggest_folder(target_index)
-    return target_folder
-
-
 def change_owner_and_group_recursively(target_folder, target_username):
     'Change uid and gid of folder and its contents, treating links as files'
     from os import lchown     # Undefined in Windows
