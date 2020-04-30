@@ -88,22 +88,6 @@ def test_get_relative_path():
     assert get_relative_path(join(f1, x), f2, [f1]) == relpath(join(f1, x), f2)
 
 
-def test_get_absolute_path():
-    x = 'file.txt'
-    f1 = join(FOLDER, 'folder1')
-    f2 = join(FOLDER, 'folder2')
-    assert get_absolute_path('', f1) == ''
-    assert get_absolute_path(None, f1) is None
-    assert get_absolute_path(x, f1) == join(f1, x)
-    assert get_absolute_path(join(f1, x), f1) == join(f1, x)
-    # Do not allow paths whose links resolve outside the folder
-    with raises(BadPath):
-        get_absolute_path(x, f2)
-    # Allow paths if they are in allowed folders
-    assert get_absolute_path(x, f2, [f1]) == join(f2, x)
-    assert get_absolute_path(join(f1, x), f2, [f1]) == join(f1, x)
-
-
 @fixture
 def sandbox(tmpdir):
     """
