@@ -21,14 +21,6 @@ L = get_log(__name__)
 SECTION_TEMPLATE = '[%s]\n%s\n'
 
 
-class Settings(dict):
-
-    def set(self, settings, prefix, key, default=None, parse=None):
-        value = set_default(settings, prefix + key, default, parse)
-        self[key] = value
-        return value
-
-
 class StoicArgumentParser(ArgumentParser):
 
     def add_argument(self, *args, **kw):

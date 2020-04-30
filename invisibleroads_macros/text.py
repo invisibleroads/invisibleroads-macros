@@ -27,13 +27,5 @@ def strip_whitespace(string):
     return WHITESPACE_PATTERN.sub('', string)
 
 
-def unicode_safely(x):
-    # http://stackoverflow.com/a/23085282/192092
-    try:
-        return x.decode(sys.getfilesystemencoding())
-    except (AttributeError, UnicodeEncodeError):
-        return x
-
-
 def split_shell_command(x):
     return shlex.split(x)
